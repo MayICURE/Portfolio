@@ -216,10 +216,17 @@
         .about-image {
             flex: 1;
             max-width: 400px;
-            background-color: var(--bg-sub);
+            /* 背景色や枠線の設定は残しつつ、aspect-ratioを削除します */
+            background-color: transparent; /* 背景を透明にする方が立ち絵が綺麗に馴染みます */
             border-radius: 8px;
             overflow: hidden;
-            aspect-ratio: 3 / 4; 
+            text-align: center; /* 画像を中央に配置 */
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto; /* 高さを自動にして、立ち絵の元の比率を保ちます */
+            display: block; /* 画像の下にできる謎の隙間を消すおまじない */
         }
 
         .about-image img {
