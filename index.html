@@ -7,15 +7,22 @@
     <style>
         /* --- 全体の基本設定 --- */
         :root {
-            --bg-color: #ffffff;      /* メイン背景色（白） */
-            --bg-sub: #f8f9fa;        /* サブ背景色（薄いグレー） */
-            --text-main: #333333;     /* メインテキスト色（濃いグレー） */
-            --text-sub: #777777;      /* サブテキスト色 */
-            --accent-blue: #0088ff;   /* 差し色の青 */
-            --accent-blue-hover: #0066cc; /* ホバー時の青 */
+            --bg-color: #ffffff;
+            --bg-sub: #f8f9fa;
+            --text-main: #333333;
+            --text-sub: #777777;
+            --accent-blue: #0088ff;
+            --accent-blue-hover: #0066cc;
+            --header-height: 70px; /* ヘッダーの高さ */
         }
 
-        body, html {
+        /* スムーススクロールとヘッダー被り防止の設定 */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: var(--header-height); 
+        }
+
+        body {
             margin: 0;
             padding: 0;
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
@@ -35,41 +42,146 @@
             padding: 0 20px;
         }
 
-        /* --- ヘッダー（トップ画面） --- */
-        .hero {
-            height: 60vh;
+        /* --- ヘッダー（ナビゲーション） --- */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background-color: rgba(255, 255, 255, 0.9); /* 少し透ける白 */
+            backdrop-filter: blur(10px); /* すりガラス効果 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            letter-spacing: 0.1em;
+        }
+
+        .header-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 30px;
+        }
+
+        .header-nav a {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-sub);
+            transition: color 0.3s ease;
+        }
+
+        .header-nav a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* --- ヒーローセクション（映像スライドショー） --- */
+        .hero {
+            /* ヘッダーの下から開始するための余白 */
+            margin-top: var(--header-height);
+            position: relative;
+            width: 100%;
+            /* シネマティックな横長比率 (21:9) */
+            aspect-ratio: 21 / 9;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* スマホなど画面が細い場合は少し縦を広げる */
+        @media (max-width: 768px) {
+            .hero { aspect-ratio: 16 / 9; }
+        }
+
+        /* スライドショーの映像エリア */
+        .slideshow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 映像を引き伸ばさず、上下を削って画面いっぱいに */
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; /* 1.5秒かけてふんわり切り替わる */
+        }
+
+        .slide-video.active {
+            opacity: 1;
+        }
+
+        /* 映像を少し暗くして文字を読みやすくするフィルター */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3); /* 白っぽいベール */
+            z-index: 1;
+        }
+
+        /* 映像の上のテキスト */
+        .hero-content {
+            position: relative;
+            z-index: 2;
             text-align: center;
-            border-bottom: 1px solid #eee;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
         }
 
         .concept {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--accent-blue);
-            letter-spacing: 0.2em;
-            margin-bottom: 10px;
+            font-weight: bold;
+            letter-spacing: 0.3em;
+            margin-bottom: 15px;
         }
 
         .main-title {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: bold;
             margin: 0;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             color: var(--text-main);
         }
 
-        /* --- セクション共通 --- */
+        /* --- セクション共通（余白を広めに） --- */
         .section {
-            padding: 80px 0;
+            padding: 120px 0; /* ゆったりとした隙間 */
         }
 
         .section-title {
             font-size: 2rem;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
             position: relative;
         }
 
@@ -79,20 +191,19 @@
             width: 40px;
             height: 2px;
             background-color: var(--accent-blue);
-            margin: 15px auto 0;
+            margin: 20px auto 0;
         }
 
         /* --- 自己紹介セクション --- */
         .about-wrapper {
             display: flex;
-            gap: 40px;
+            gap: 50px;
             align-items: flex-start;
         }
 
         .about-image {
             flex: 1;
             max-width: 400px;
-            /* 立ち絵用のプレースホルダー設定 */
             background-color: var(--bg-sub);
             border-radius: 8px;
             overflow: hidden;
@@ -117,15 +228,15 @@
         }
 
         .about-text {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             color: var(--text-main);
+            font-size: 1.05rem;
         }
 
-        /* サブ写真ギャラリー（いくつかの写真） */
         .about-gallery {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
 
         .about-gallery-item {
@@ -149,7 +260,7 @@
         .works-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
+            gap: 40px;
         }
 
         .work-card {
@@ -163,7 +274,7 @@
 
         .work-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 136, 255, 0.15); /* ホバー時に青みがかった影 */
+            box-shadow: 0 8px 25px rgba(0, 136, 255, 0.15);
         }
 
         .work-thumb {
@@ -181,11 +292,11 @@
         }
 
         .work-card:hover .work-thumb img {
-            transform: scale(1.05); /* ホバーで画像が少し拡大 */
+            transform: scale(1.05);
         }
 
         .work-info {
-            padding: 20px;
+            padding: 25px 20px;
         }
 
         .work-title {
@@ -196,8 +307,8 @@
         }
 
         .work-date {
-            font-size: 0.8rem;
-            color: var(--text-sub);
+            font-size: 0.85rem;
+            color: var(--accent-blue);
         }
 
         /* --- コンタクト（Links）セクション --- */
@@ -211,7 +322,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 12px 30px;
+            padding: 15px 40px;
             border-radius: 30px;
             background-color: var(--bg-color);
             border: 2px solid var(--accent-blue);
@@ -221,8 +332,8 @@
         }
 
         .contact-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             fill: currentColor;
         }
 
@@ -234,30 +345,54 @@
         /* --- フッター --- */
         footer {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             font-size: 0.9rem;
             color: var(--text-sub);
             border-top: 1px solid #eee;
         }
 
-        /* --- スマホ表示用調整 --- */
         @media (max-width: 768px) {
-            .about-wrapper {
-                flex-direction: column;
-            }
-            .about-image {
-                max-width: 100%;
-                width: 100%;
-            }
+            .about-wrapper { flex-direction: column; gap: 30px; }
+            .about-image { max-width: 100%; }
+            .header-logo { font-size: 1.2rem; }
+            .header-nav ul { gap: 15px; }
+            .header-nav a { font-size: 0.85rem; }
+            .main-title { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <header class="hero">
-        <div class="concept">舞う色をセカイに</div>
-        <h1 class="main-title">舞色</h1>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="#" class="header-logo">Maiiro</a>
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="#about">Profile</a></li>
+                    <li><a href="#works">Works</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
+
+    <section class="hero">
+        <div class="slideshow-container" id="videoSlideshow">
+            <img class="slide-video active" src="https://placehold.co/1920x820/e2e8f0/94a3b8?text=Video+1+(5+seconds)" alt="動画1">
+            
+            <img class="slide-video" src="https://placehold.co/1920x820/cbd5e1/64748b?text=Video+2+(5+seconds)" alt="動画2">
+            
+            <img class="slide-video" src="https://placehold.co/1920x820/94a3b8/475569?text=Video+3+(5+seconds)" alt="動画3">
+
+            </div>
+        
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <div class="concept">舞う色をセカイに</div>
+            <h1 class="main-title">舞色</h1>
+        </div>
+    </section>
 
     <section id="about" class="section container">
         <h2 class="section-title">Profile</h2>
@@ -265,15 +400,13 @@
             <div class="about-image">
                 <img src="https://placehold.co/400x533/e2e8f0/94a3b8?text=Standing+Picture" alt="舞色の立ち絵">
             </div>
-            
             <div class="about-content">
-                <h3 class="about-name">舞色 (MayI)</h3>
+                <h3 class="about-name">舞色 (Maiiro)</h3>
                 <p class="about-text">
                     ここにプロフィール文を記載します。<br>
                     Poppin'を中心とした身体表現（ダンス・振り付け）と、Unity/VRChatを用いた空間演出・シェーダー開発を横断し、フィジカルとデジタルを融合させた表現を追求しています。<br>
                     別名義として「まいきゅあ」「MayI」などでも活動。
                 </p>
-                
                 <div class="about-gallery">
                     <div class="about-gallery-item">
                         <img src="https://placehold.co/200x200/e2e8f0/94a3b8?text=Photo+1" alt="サブ写真1">
@@ -303,6 +436,7 @@
                         <div class="work-date">2026.04.12</div>
                     </div>
                 </a>
+
                 <a href="#link-to-detail-page" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Work+Thumbnail" alt="作品サムネイル">
@@ -330,13 +464,13 @@
     <section id="contact" class="section container">
         <h2 class="section-title">Contact</h2>
         <div class="contact-links">
-            <a href="https://x.com/May_I_CURE" target="_blank" class="contact-btn">
+            <a href="https://x.com/あなたのID" target="_blank" class="contact-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
                 X (Twitter)
             </a>
-            <a href="mailto:mayimaxchase15[gmail.com" class="contact-btn">
+            <a href="mailto:あなたのメールアドレス" class="contact-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
@@ -349,5 +483,28 @@
         <p>&copy; 2026 舞色 - Maiiro. All rights reserved.</p>
     </footer>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // スライドショーの要素を取得
+            const slides = document.querySelectorAll('.slide-video');
+            let currentSlide = 0;
+            const slideInterval = 5000; // 5000ミリ秒 = 5秒
+
+            // スライドショーがない場合は実行しない
+            if(slides.length === 0) return;
+
+            // 5秒ごとにスライドを切り替える関数
+            setInterval(() => {
+                // 現在のスライドの 'active' クラスを外して透明にする
+                slides[currentSlide].classList.remove('active');
+                
+                // 次のスライドのインデックスを計算（最後まできたら最初に戻る）
+                currentSlide = (currentSlide + 1) % slides.length;
+                
+                // 次のスライドに 'active' クラスを付けて表示する
+                slides[currentSlide].classList.add('active');
+            }, slideInterval);
+        });
+    </script>
 </body>
 </html>
