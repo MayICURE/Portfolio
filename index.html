@@ -323,6 +323,18 @@
             color: var(--accent-blue);
         }
 
+        .work-desc {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-top: 10px;
+            line-height: 1.5;
+            /* 2行を超えたら「...」で省略する魔法のコード */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         /* --- コンタクト（Links）セクション --- */
         .contact-links {
             display: flex;
@@ -450,35 +462,36 @@
             <h2 class="section-title">Works</h2>
             <div class="works-grid">
                 
-                <a href="#link-to-detail-page" class="work-card">
+                <a href="work-detail.html" class="work-card">
                     <div class="work-thumb">
-                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Work+Thumbnail" alt="作品サムネイル">
+                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat 新ワールド公開</h3>
+                        <h3 class="work-title">VRChat 新ワールド公開1</h3>
                         <div class="work-date">2026.04.12</div>
+                        <p class="work-desc">Light Volumesを用いた緻密なライティングと、独自のシェーダーによる空間演出を実装したVRChatワールドです。</p>
                     </div>
-                </a>
 
-                <a href="#link-to-detail-page" class="work-card">
+                <a href="work-detail.html" class="work-card">
                     <div class="work-thumb">
-                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Work+Thumbnail" alt="作品サムネイル">
+                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">オリジナルChoreography映像</h3>
-                        <div class="work-date">2025.11.25</div>
+                        <h3 class="work-title">VRChat 新ワールド公開2</h3>
+                        <div class="work-date">2026.04.12</div>
+                        <p class="work-desc">Light Volumesを用いた緻密なライティングと、独自のシェーダーによる空間演出を実装したVRChatワールドです。</p>
                     </div>
-                </a>
 
-                <a href="#link-to-detail-page" class="work-card">
+                <a href="work-detail.html" class="work-card">
                     <div class="work-thumb">
-                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Work+Thumbnail" alt="作品サムネイル">
+                        <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">Unity Shader 開発記録</h3>
-                        <div class="work-date">2025.09.27</div>
+                        <h3 class="work-title">VRChat 新ワールド公開3</h3>
+                        <div class="work-date">2026.04.12</div>
+                        <p class="work-desc">Light Volumesを用いた緻密なライティングと、独自のシェーダーによる空間演出を実装したVRChatワールドです。</p>
                     </div>
-                </a>
+</a>
                 
             </div>
         </div>
