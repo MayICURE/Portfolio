@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>舞色 - 舞う色をセカイに</title>
+    <title>舞色 (MayI) - 舞う色をセカイに。</title>
     <style>
         /* --- 全体の基本設定 --- */
         :root {
@@ -12,11 +12,9 @@
             --text-main: #333333;
             --text-sub: #777777;
             --accent-blue: #0088ff;
-            --accent-blue-hover: #0066cc;
-            --header-height: 70px; /* ヘッダーの高さ */
+            --header-height: 70px;
         }
 
-        /* スムーススクロールとヘッダー被り防止の設定 */
         html {
             scroll-behavior: smooth;
             scroll-padding-top: var(--header-height); 
@@ -42,15 +40,15 @@
             padding: 0 20px;
         }
 
-        /* --- ヘッダー（ナビゲーション） --- */
+        /* --- ヘッダー --- */
         .site-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: var(--header-height);
-            background-color: rgba(255, 255, 255, 0.9); /* 少し透ける白 */
-            backdrop-filter: blur(10px); /* すりガラス効果 */
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 1000;
             display: flex;
@@ -95,25 +93,19 @@
 
         /* --- ヒーローセクション（映像スライドショー） --- */
         .hero {
-            /* ヘッダーの下から開始するための余白 */
             margin-top: var(--header-height);
             position: relative;
             width: 100%;
-            /* シネマティックな横長比率 (21:9) */
             aspect-ratio: 21 / 9;
             background-color: #000;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden; /* はみ出した文字を確実に切り落とす */
+            /* 以前の flex 指定は削除し、内部を絶対配置でコントロールします */
         }
 
-        /* スマホなど画面が細い場合は少し縦を広げる */
         @media (max-width: 768px) {
             .hero { aspect-ratio: 16 / 9; }
         }
 
-        /* スライドショーの映像エリア */
         .slideshow-container {
             position: absolute;
             top: 0;
@@ -128,54 +120,74 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* 映像を引き伸ばさず、上下を削って画面いっぱいに */
             object-fit: cover;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out; /* 1.5秒かけてふんわり切り替わる */
+            transition: opacity 1.5s ease-in-out;
         }
 
         .slide-video.active {
             opacity: 1;
         }
 
-        /* 映像を少し暗くして文字を読みやすくするフィルター */
         .hero-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.3); /* 白っぽいベール */
+            background: rgba(0, 0, 0, 0.2); 
             z-index: 1;
         }
 
-        /* 映像の上のテキスト */
         .hero-content {
-            position: relative;
+            /* 映像エリアの「一番下」に張り付かせる */
+            position: absolute;
+            bottom: 0;
+            left: 0;
             z-index: 2;
-            text-align: center;
-            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
-        }
-
-        .concept {
-            font-size: 1.2rem;
-            color: var(--accent-blue);
-            font-weight: bold;
-            letter-spacing: 0.3em;
-            margin-bottom: 15px;
+            padding-left: 10%; 
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .main-title {
-            font-size: 4rem;
+            /* さらに巨大化！ */
+            font-size: 16rem; 
             font-weight: bold;
             margin: 0;
-            letter-spacing: 0.15em;
-            color: var(--text-main);
+            letter-spacing: 0.1em;
+            
+            /* 白いアウトライン */
+            color: transparent;
+            -webkit-text-stroke: 3px #ffffff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+
+            /* 文字の上下の無駄な隙間を削る */
+            line-height: 0.8; 
+            
+            /* 枠の底辺から、文字の高さの45%分だけ下に押し出して下半分を隠す */
+            transform: translateY(45%); 
         }
 
-        /* --- セクション共通（余白を広めに） --- */
+        /* --- コンセプトバー（映像の下） --- */
+        .concept-bar {
+            padding: 80px 20px 40px;
+            text-align: center;
+            background-color: var(--bg-color);
+        }
+
+        .concept-text {
+            /* もう少し大きく(2.2rem) */
+            font-size: 2.2rem;
+            font-weight: 300; 
+            color: var(--text-main);
+            letter-spacing: 0.4em;
+            margin: 0;
+        }
+
+        /* --- セクション共通 --- */
         .section {
-            padding: 120px 0; /* ゆったりとした隙間 */
+            padding: 80px 0 120px; 
         }
 
         .section-title {
@@ -351,13 +363,24 @@
             border-top: 1px solid #eee;
         }
 
+        /* スマホ向け調整 */
         @media (max-width: 768px) {
+            .hero-content { padding-left: 5%; }
+            .main-title { 
+                font-size: 8rem; /* スマホでも巨大化 */
+                -webkit-text-stroke: 2px #ffffff;
+                /* スマホでの下がり具合の微調整 */
+                transform: translateY(40%); 
+            }
+            .concept-text { 
+                font-size: 1.5rem; 
+                letter-spacing: 0.2em;
+            }
             .about-wrapper { flex-direction: column; gap: 30px; }
             .about-image { max-width: 100%; }
             .header-logo { font-size: 1.2rem; }
             .header-nav ul { gap: 15px; }
             .header-nav a { font-size: 0.85rem; }
-            .main-title { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -365,7 +388,7 @@
 
     <header class="site-header">
         <div class="header-inner">
-            <a href="#" class="header-logo">Maiiro</a>
+            <a href="#" class="header-logo">MayI</a>
             <nav class="header-nav">
                 <ul>
                     <li><a href="#about">Profile</a></li>
@@ -378,21 +401,21 @@
 
     <section class="hero">
         <div class="slideshow-container" id="videoSlideshow">
-            <img class="slide-video active" src="https://placehold.co/1920x820/e2e8f0/94a3b8?text=Video+1+(5+seconds)" alt="動画1">
-            
-            <img class="slide-video" src="https://placehold.co/1920x820/cbd5e1/64748b?text=Video+2+(5+seconds)" alt="動画2">
-            
-            <img class="slide-video" src="https://placehold.co/1920x820/94a3b8/475569?text=Video+3+(5+seconds)" alt="動画3">
-
-            </div>
+            <img class="slide-video active" src="https://placehold.co/1920x820/e2e8f0/94a3b8?text=Video+1" alt="動画1">
+            <img class="slide-video" src="https://placehold.co/1920x820/cbd5e1/64748b?text=Video+2" alt="動画2">
+            <img class="slide-video" src="https://placehold.co/1920x820/94a3b8/475569?text=Video+3" alt="動画3">
+        </div>
         
         <div class="hero-overlay"></div>
 
         <div class="hero-content">
-            <div class="concept">舞う色をセカイに</div>
-            <h1 class="main-title">舞色</h1>
+            <h1 class="main-title">Σay[]</h1>
         </div>
     </section>
+
+    <div class="concept-bar">
+        <p class="concept-text">舞う色をセカイに。</p>
+    </div>
 
     <section id="about" class="section container">
         <h2 class="section-title">Profile</h2>
@@ -401,11 +424,11 @@
                 <img src="https://placehold.co/400x533/e2e8f0/94a3b8?text=Standing+Picture" alt="舞色の立ち絵">
             </div>
             <div class="about-content">
-                <h3 class="about-name">舞色 (Maiiro)</h3>
+                <h3 class="about-name">舞色 (MayI)</h3>
                 <p class="about-text">
                     ここにプロフィール文を記載します。<br>
                     Poppin'を中心とした身体表現（ダンス・振り付け）と、Unity/VRChatを用いた空間演出・シェーダー開発を横断し、フィジカルとデジタルを融合させた表現を追求しています。<br>
-                    別名義として「まいきゅあ」「MayI」などでも活動。
+                    別名義として「まいきゅあ」などでも活動。
                 </p>
                 <div class="about-gallery">
                     <div class="about-gallery-item">
@@ -464,13 +487,13 @@
     <section id="contact" class="section container">
         <h2 class="section-title">Contact</h2>
         <div class="contact-links">
-            <a href="https://x.com/あなたのID" target="_blank" class="contact-btn">
+            <a href="https://x.com/May_I_CURE" target="_blank" class="contact-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
                 X (Twitter)
             </a>
-            <a href="mailto:あなたのメールアドレス" class="contact-btn">
+            <a href="mailto:mayimaxchase15@gmail.com" class="contact-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
@@ -480,28 +503,20 @@
     </section>
 
     <footer>
-        <p>&copy; 2026 舞色 - Maiiro. All rights reserved.</p>
+        <p>&copy; 2026 舞色 - MayI. All rights reserved.</p>
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // スライドショーの要素を取得
             const slides = document.querySelectorAll('.slide-video');
             let currentSlide = 0;
-            const slideInterval = 5000; // 5000ミリ秒 = 5秒
+            const slideInterval = 5000; 
 
-            // スライドショーがない場合は実行しない
             if(slides.length === 0) return;
 
-            // 5秒ごとにスライドを切り替える関数
             setInterval(() => {
-                // 現在のスライドの 'active' クラスを外して透明にする
                 slides[currentSlide].classList.remove('active');
-                
-                // 次のスライドのインデックスを計算（最後まできたら最初に戻る）
                 currentSlide = (currentSlide + 1) % slides.length;
-                
-                // 次のスライドに 'active' クラスを付けて表示する
                 slides[currentSlide].classList.add('active');
             }, slideInterval);
         });
