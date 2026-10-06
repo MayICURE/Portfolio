@@ -45,7 +45,7 @@
             padding: 0 20px;
         }
 
-        /* --- ローディング画面 (波紋マーブル演出) --- */
+        /* --- ローディング画面 (波紋マーブル演出・軽量版) --- */
         #loader {
             position: fixed;
             top: 0;
@@ -65,7 +65,6 @@
             pointer-events: none;
         }
 
-        /* 波紋を包むコンテナ */
         #loader-ripples {
             position: absolute;
             top: 0;
@@ -79,60 +78,70 @@
             align-items: center;
         }
 
-        /* 波紋の共通設定：有機的な形にして回転させることで混ざり合う液体を表現 */
+        /* 波紋の共通設定 */
         .ripple {
             position: absolute;
             border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
             transform: scale(0) rotate(0deg);
             opacity: 0;
             transform-origin: center center;
-            mix-blend-mode: screen; /* 色が重なると明るく発光する */
+            /* 動作を軽くするためのGPU最適化設定 */
+            will-change: transform, opacity;
         }
 
-        /* 各色の波紋（サイズとグラデーション） */
+        /* 目に優しいパステル調・ペールトーンのグラデーション */
         .ripple-1 {
             width: 150vmax; height: 150vmax;
-            background: linear-gradient(45deg, #00f3ff, #0088ff);
+            background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9)); /* 淡いブルー */
         }
         .ripple-2 {
             width: 160vmax; height: 160vmax;
-            background: linear-gradient(45deg, #7f00ff, #ff007f);
+            background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9)); /* 淡いパープル */
         }
         .ripple-3 {
             width: 170vmax; height: 170vmax;
-            background: linear-gradient(45deg, #fdbb2d, #ff007f);
+            background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9)); /* 淡いピンク */
         }
         /* 最後の白い波紋は完全な円形 */
         .ripple-white {
             width: 200vmax; height: 200vmax;
             background: #ffffff;
             border-radius: 50%; 
-            mix-blend-mode: normal; /* 白は全てを塗りつぶす */
         }
 
-        /* クリック後に付与されるアニメーションクラス */
-        .ripple.active {
+        /* アニメーションの適用 */
+        .ripple.active:not(.ripple-white) {
             animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
-        /* 波が生まれるタイミングを少しずつズラす */
         .ripple-1.active { animation-delay: 0s; }
         .ripple-2.active { animation-delay: 0.5s; }
         .ripple-3.active { animation-delay: 1.0s; }
-        .ripple-white.active { animation-delay: 2.2s; animation-duration: 3s; }
+        
+        .ripple-white.active { 
+            animation: rippleWhiteGrow 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 2.2s; 
+        }
 
+        /* 軽量化された波紋アニメーション */
         @keyframes rippleGrow {
             0% {
                 transform: scale(0) rotate(0deg);
-                opacity: 0.8;
+                opacity: 0;
             }
-            50% {
+            20% {
                 opacity: 1;
             }
             100% {
-                transform: scale(1.5) rotate(180deg); /* 拡大しながら回転 */
+                transform: scale(1.5) rotate(180deg);
                 opacity: 1;
             }
+        }
+
+        @keyframes rippleWhiteGrow {
+            0% { transform: scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.5); opacity: 1; }
         }
 
         /* テキスト「∑ay][」 */
@@ -606,7 +615,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat<br>ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」<br>リニューアル</h3>
+                        <h3 class="work-title">VRChat<br>ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」リニューアル</h3>
                         <div class="work-date">2026.09.26</div>
                         <p class="work-desc">Live_li_V_e -漂流日記-で披露した [-蝕-]のアンサーﾊﾟｰﾃｨｸﾙﾗｲﾌﾞです。</p>
                     </div>
@@ -618,7 +627,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat Live_li_V_e -KASANe-</h3>
+                        <h3 class="work-title">VRChat<br>Live_li_V_e -KASANe-</h3>
                         <div class="work-date">2026.09.24</div>
                         <p class="work-desc">夜の水族館で夢を見る。とのコラボ。</p>
                     </div>
@@ -729,7 +738,7 @@
                 // 1. 全ての波紋（リップル）にアニメーション開始クラスを付与
                 ripples.forEach(r => r.classList.add('active'));
                 
-                // 2. 2.8秒後に「∑ay][」をフェードアウト（白い波が迫ってくるタイミング）
+                // 2. 2.8秒後に「∑ay][」をフェードアウト
                 setTimeout(() => {
                     loaderText.classList.add('fade-out');
                 }, 2800);
