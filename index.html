@@ -45,7 +45,7 @@
             padding: 0 20px;
         }
 
-        /* --- ローディング画面 (インタラクティブ演出) --- */
+        /* --- ローディング画面 (波紋マーブル演出) --- */
         #loader {
             position: fixed;
             top: 0;
@@ -57,7 +57,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 1.5s ease;
+            transition: opacity 1s ease;
         }
 
         #loader.hidden {
@@ -65,40 +65,77 @@
             pointer-events: none;
         }
 
-        #loader-marble {
+        /* 波紋を包むコンテナ */
+        #loader-ripples {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(270deg, #ff007f, #7f00ff, #0088ff, #00f3ff);
-            background-size: 400% 400%;
-            opacity: 0;
+            overflow: hidden;
             z-index: 1;
-            transition: opacity 2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        #loader-marble.active {
-            opacity: 1;
-            animation: marbleFlow 3s ease infinite;
-        }
-
-        #loader-white {
+        /* 波紋の共通設定：有機的な形にして回転させることで混ざり合う液体を表現 */
+        .ripple {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ffffff;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
+            transform: scale(0) rotate(0deg);
             opacity: 0;
-            z-index: 2;
-            transition: opacity 1.5s ease;
+            transform-origin: center center;
+            mix-blend-mode: screen; /* 色が重なると明るく発光する */
         }
 
-        #loader-white.active {
-            opacity: 1;
+        /* 各色の波紋（サイズとグラデーション） */
+        .ripple-1 {
+            width: 150vmax; height: 150vmax;
+            background: linear-gradient(45deg, #00f3ff, #0088ff);
+        }
+        .ripple-2 {
+            width: 160vmax; height: 160vmax;
+            background: linear-gradient(45deg, #7f00ff, #ff007f);
+        }
+        .ripple-3 {
+            width: 170vmax; height: 170vmax;
+            background: linear-gradient(45deg, #fdbb2d, #ff007f);
+        }
+        /* 最後の白い波紋は完全な円形 */
+        .ripple-white {
+            width: 200vmax; height: 200vmax;
+            background: #ffffff;
+            border-radius: 50%; 
+            mix-blend-mode: normal; /* 白は全てを塗りつぶす */
         }
 
+        /* クリック後に付与されるアニメーションクラス */
+        .ripple.active {
+            animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        /* 波が生まれるタイミングを少しずつズラす */
+        .ripple-1.active { animation-delay: 0s; }
+        .ripple-2.active { animation-delay: 0.5s; }
+        .ripple-3.active { animation-delay: 1.0s; }
+        .ripple-white.active { animation-delay: 2.2s; animation-duration: 3s; }
+
+        @keyframes rippleGrow {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5) rotate(180deg); /* 拡大しながら回転 */
+                opacity: 1;
+            }
+        }
+
+        /* テキスト「∑ay][」 */
         #loader-text {
             position: relative;
             z-index: 3;
@@ -118,12 +155,7 @@
 
         #loader-text.fade-out {
             opacity: 0;
-        }
-
-        @keyframes marbleFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            transform: scale(0.9);
         }
 
         /* --- ヘッダー --- */
@@ -489,8 +521,14 @@
 
     <!-- インタラクティブ・ローディング画面 -->
     <div id="loader">
-        <div id="loader-marble"></div>
-        <div id="loader-white"></div>
+        <div id="loader-ripples">
+            <!-- 少しずつ時間をズラして広がる有機的な波 -->
+            <div class="ripple ripple-1"></div>
+            <div class="ripple ripple-2"></div>
+            <div class="ripple ripple-3"></div>
+            <!-- すべてを白で包み込む最後の波 -->
+            <div class="ripple ripple-white"></div>
+        </div>
         <div id="loader-text">∑ay][</div>
     </div>
 
@@ -568,7 +606,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」リニューアル</h3>
+                        <h3 class="work-title">VRChat<br>ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」<br>リニューアル</h3>
                         <div class="work-date">2026.09.26</div>
                         <p class="work-desc">Live_li_V_e -漂流日記-で披露した [-蝕-]のアンサーﾊﾟｰﾃｨｸﾙﾗｲﾌﾞです。</p>
                     </div>
@@ -592,7 +630,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat SanrioVirtualFestival2026SummerEdition 再演</h3>
+                        <h3 class="work-title">VRChat<br>SanrioVirtualFestival2026<br>SummerEdition 再演</h3>
                         <div class="work-date">2026.08.28</div>
                         <p class="work-desc">ちょっとだけUPDATEして再登場。</p>
                     </div>
@@ -604,7 +642,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat 井上正大主催デバッグフェス・1stライブ制作</h3>
+                        <h3 class="work-title">VRChat<br>井上正大主催デバッグフェス・1stライブ制作</h3>
                         <div class="work-date">2026.05.11-7.10</div>
                         <p class="work-desc">ライブ演出/監督</p>
                     </div>
@@ -616,7 +654,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat Virtual Puro Spaking Spling "Besties"制作など</h3>
+                        <h3 class="work-title">VRChat<br>Virtual Puro Spaking Spling<br>"Besties"制作など</h3>
                         <div class="work-date">2026.05.07</div>
                         <p class="work-desc">出演、制作進行、モデリング、ワールドコーディネーター、などなど……</p>
                     </div>
@@ -640,7 +678,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat SanrioVirutalFestial2026 舞色出演</h3>
+                        <h3 class="work-title">VRChat<br>SanrioVirutalFestial2026 舞色出演</h3>
                         <div class="work-date">2026.02.14</div>
                         <p class="work-desc">夢。</p>
                     </div>
@@ -677,12 +715,10 @@
         document.addEventListener("DOMContentLoaded", function() {
             // ローディング画面の要素
             const loaderText = document.getElementById('loader-text');
-            const loaderMarble = document.getElementById('loader-marble');
-            const loaderWhite = document.getElementById('loader-white');
             const loader = document.getElementById('loader');
+            const ripples = document.querySelectorAll('.ripple');
             let hasStarted = false;
 
-            // ローディングが存在しない場合（エラー回避）
             if(!loaderText) return;
 
             // 「∑ay][」がクリックされた時の処理
@@ -690,21 +726,20 @@
                 if (hasStarted) return;
                 hasStarted = true;
 
-                // 1. マーブル背景を表示し、アニメーションを開始
-                loaderMarble.classList.add('active');
+                // 1. 全ての波紋（リップル）にアニメーション開始クラスを付与
+                ripples.forEach(r => r.classList.add('active'));
                 
-                // 2. 3.5秒後にホワイトアウトさせ、「∑ay][」を消す
+                // 2. 2.8秒後に「∑ay][」をフェードアウト（白い波が迫ってくるタイミング）
                 setTimeout(() => {
-                    loaderWhite.classList.add('active');
                     loaderText.classList.add('fade-out');
-                }, 3500);
+                }, 2800);
 
-                // 3. 5秒後にローダー自体を隠し、メインサイトの文字や映像を浮き上がらせる
+                // 3. 4.5秒後にローダー自体を隠し、メインサイトの文字や映像を浮き上がらせる
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     document.body.classList.remove('is-loading');
                     startSlideshow(); // ここで映像スライドショーをスタート
-                }, 5000);
+                }, 4500);
             });
 
             // 映像スライドショーの処理
