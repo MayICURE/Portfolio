@@ -20,6 +20,11 @@
             scroll-padding-top: var(--header-height); 
         }
 
+        /* 初期ローディング時のスクロールロック */
+        body.is-loading {
+            overflow: hidden;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -38,6 +43,87 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+
+        /* --- ローディング画面 (インタラクティブ演出) --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loader-marble {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(270deg, #ff007f, #7f00ff, #0088ff, #00f3ff);
+            background-size: 400% 400%;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 2s ease;
+        }
+
+        #loader-marble.active {
+            opacity: 1;
+            animation: marbleFlow 3s ease infinite;
+        }
+
+        #loader-white {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            opacity: 0;
+            z-index: 2;
+            transition: opacity 1.5s ease;
+        }
+
+        #loader-white.active {
+            opacity: 1;
+        }
+
+        #loader-text {
+            position: relative;
+            z-index: 3;
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: opacity 1s ease, transform 0.3s ease, text-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        #loader-text:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        #loader-text.fade-out {
+            opacity: 0;
+        }
+
+        @keyframes marbleFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* --- ヘッダー --- */
@@ -91,15 +177,14 @@
             color: var(--accent-blue);
         }
 
-        /* --- ヒーローセクション（映像スライドショー） --- */
+        /* --- ヒーローセクション --- */
         .hero {
             margin-top: var(--header-height);
             position: relative;
             width: 100%;
             aspect-ratio: 21 / 9;
             background-color: #000;
-            overflow: hidden; /* はみ出した文字を確実に切り落とす */
-            /* 以前の flex 指定は削除し、内部を絶対配置でコントロールします */
+            overflow: hidden; 
         }
 
         @media (max-width: 768px) {
@@ -122,11 +207,15 @@
             height: 100%;
             object-fit: cover;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 2s ease-in-out;
         }
 
         .slide-video.active {
             opacity: 1;
+        }
+
+        body.is-loading .slide-video {
+            opacity: 0 !important; 
         }
 
         .hero-overlay {
@@ -137,10 +226,14 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.2); 
             z-index: 1;
+            transition: background-color 2s ease;
+        }
+
+        body.is-loading .hero-overlay {
+            background: rgba(255, 255, 255, 1);
         }
 
         .hero-content {
-            /* 映像エリアの「一番下」に張り付かせる */
             position: absolute;
             bottom: 0;
             left: 0;
@@ -151,25 +244,24 @@
         }
 
         .main-title {
-            /* さらに巨大化！ */
             font-size: 16rem; 
             font-weight: bold;
             margin: 0;
             letter-spacing: 0.1em;
-            
-            /* 白いアウトライン */
             color: transparent;
             -webkit-text-stroke: 3px #ffffff;
             text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-
-            /* 文字の上下の無駄な隙間を削る */
             line-height: 0.8; 
-            
-            /* 枠の底辺から、文字の高さの45%分だけ下に押し出して下半分を隠す */
             transform: translateY(45%); 
+            transition: transform 2.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 2s ease;
         }
 
-        /* --- コンセプトバー（映像の下） --- */
+        body.is-loading .main-title {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        /* --- コンセプトバー --- */
         .concept-bar {
             padding: 80px 20px 40px;
             text-align: center;
@@ -177,7 +269,6 @@
         }
 
         .concept-text {
-            /* もう少し大きく(2.2rem) */
             font-size: 2.2rem;
             font-weight: 300; 
             color: var(--text-main);
@@ -216,23 +307,16 @@
         .about-image {
             flex: 1;
             max-width: 400px;
-            /* 背景色や枠線の設定は残しつつ、aspect-ratioを削除します */
-            background-color: transparent; /* 背景を透明にする方が立ち絵が綺麗に馴染みます */
+            background-color: transparent;
             border-radius: 8px;
             overflow: hidden;
-            text-align: center; /* 画像を中央に配置 */
+            text-align: center; 
         }
 
         .about-image img {
             width: 100%;
-            height: auto; /* 高さを自動にして、立ち絵の元の比率を保ちます */
-            display: block; /* 画像の下にできる謎の隙間を消すおまじない */
-        }
-
-        .about-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto; 
+            display: block; 
         }
 
         .about-content {
@@ -335,7 +419,6 @@
             color: var(--text-sub);
             margin-top: 10px;
             line-height: 1.5;
-            /* 2行を超えたら「...」で省略する魔法のコード */
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -386,9 +469,8 @@
         @media (max-width: 768px) {
             .hero-content { padding-left: 5%; }
             .main-title { 
-                font-size: 8rem; /* スマホでも巨大化 */
+                font-size: 8rem; 
                 -webkit-text-stroke: 2px #ffffff;
-                /* スマホでの下がり具合の微調整 */
                 transform: translateY(40%); 
             }
             .concept-text { 
@@ -403,7 +485,14 @@
         }
     </style>
 </head>
-<body>
+<body class="is-loading">
+
+    <!-- インタラクティブ・ローディング画面 -->
+    <div id="loader">
+        <div id="loader-marble"></div>
+        <div id="loader-white"></div>
+        <div id="loader-text">∑ay][</div>
+    </div>
 
     <header class="site-header">
         <div class="header-inner">
@@ -473,17 +562,19 @@
             <h2 class="section-title">Works</h2>
             <div class="works-grid">
                 
+                <!-- Works 1 -->
                 <a href="work001.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat　ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」リニューアル</h3>
+                        <h3 class="work-title">VRChat ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ「魚類による考古学」リニューアル</h3>
                         <div class="work-date">2026.09.26</div>
                         <p class="work-desc">Live_li_V_e -漂流日記-で披露した [-蝕-]のアンサーﾊﾟｰﾃｨｸﾙﾗｲﾌﾞです。</p>
                     </div>
+                </a>
 
-
+                <!-- Works 2 -->
                 <a href="work002.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
@@ -493,17 +584,21 @@
                         <div class="work-date">2026.09.24</div>
                         <p class="work-desc">夜の水族館で夢を見る。とのコラボ。</p>
                     </div>
+                </a>
                     
+                <!-- Works 3 -->
                 <a href="work003.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat SanrioVirtualFestival2026SummerEdition　再演</h3>
+                        <h3 class="work-title">VRChat SanrioVirtualFestival2026SummerEdition 再演</h3>
                         <div class="work-date">2026.08.28</div>
                         <p class="work-desc">ちょっとだけUPDATEして再登場。</p>
                     </div>
+                </a>
 
+                <!-- Works 4 -->
                 <a href="work004.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
@@ -513,7 +608,9 @@
                         <div class="work-date">2026.05.11-7.10</div>
                         <p class="work-desc">ライブ演出/監督</p>
                     </div>
+                </a>
 
+                <!-- Works 5 -->
                 <a href="work005.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
@@ -523,7 +620,9 @@
                         <div class="work-date">2026.05.07</div>
                         <p class="work-desc">出演、制作進行、モデリング、ワールドコーディネーター、などなど……</p>
                     </div>
+                </a>
                     
+                <!-- Works 6 -->
                 <a href="work006.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
@@ -533,7 +632,9 @@
                         <div class="work-date">2026.04.23</div>
                         <p class="work-desc">イベント「フラピッ！」のために作りました。</p>
                     </div>
+                </a>
 
+                <!-- Works 7 -->
                 <a href="work007.html" class="work-card">
                     <div class="work-thumb">
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
@@ -543,7 +644,7 @@
                         <div class="work-date">2026.02.14</div>
                         <p class="work-desc">夢。</p>
                     </div>
-</a>
+                </a>
                 
             </div>
         </div>
@@ -571,19 +672,58 @@
         <p>&copy; 2026 舞色 - ∑ay][. All rights reserved.</p>
     </footer>
 
+    <!-- インタラクション＆スライドショー用 JavaScript -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const slides = document.querySelectorAll('.slide-video');
-            let currentSlide = 0;
-            const slideInterval = 5000; 
+            // ローディング画面の要素
+            const loaderText = document.getElementById('loader-text');
+            const loaderMarble = document.getElementById('loader-marble');
+            const loaderWhite = document.getElementById('loader-white');
+            const loader = document.getElementById('loader');
+            let hasStarted = false;
 
-            if(slides.length === 0) return;
+            // ローディングが存在しない場合（エラー回避）
+            if(!loaderText) return;
 
-            setInterval(() => {
-                slides[currentSlide].classList.remove('active');
-                currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].classList.add('active');
-            }, slideInterval);
+            // 「∑ay][」がクリックされた時の処理
+            loaderText.addEventListener('click', function() {
+                if (hasStarted) return;
+                hasStarted = true;
+
+                // 1. マーブル背景を表示し、アニメーションを開始
+                loaderMarble.classList.add('active');
+                
+                // 2. 3.5秒後にホワイトアウトさせ、「∑ay][」を消す
+                setTimeout(() => {
+                    loaderWhite.classList.add('active');
+                    loaderText.classList.add('fade-out');
+                }, 3500);
+
+                // 3. 5秒後にローダー自体を隠し、メインサイトの文字や映像を浮き上がらせる
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    document.body.classList.remove('is-loading');
+                    startSlideshow(); // ここで映像スライドショーをスタート
+                }, 5000);
+            });
+
+            // 映像スライドショーの処理
+            function startSlideshow() {
+                const slides = document.querySelectorAll('.slide-video');
+                let currentSlide = 0;
+                const slideInterval = 5000; 
+
+                if(slides.length === 0) return;
+                
+                // 最初の映像をフェードイン
+                slides[0].classList.add('active'); 
+
+                setInterval(() => {
+                    slides[currentSlide].classList.remove('active');
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    slides[currentSlide].classList.add('active');
+                }, slideInterval);
+            }
         });
     </script>
 </body>
