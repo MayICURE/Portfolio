@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>背景マーブルの動きテスト</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #ffffff;
+            font-family: sans-serif;
+        }
+
+        /* 動きがわかりやすいように、要素の枠線を赤の点線で表示（後で消せます） */
+        .fluid-blob {
+            position: absolute;
+            /* アメーバのような歪な形にしています */
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            opacity: 0.8;
+            will-change: transform;
+            /* 動きを見るためのガイド線（実際のサイトにはありません） */
+            border: 2px dashed rgba(255, 0, 0, 0.2); 
+        }
+
+        /* テスト用に、先ほどより少し濃いグレーにしています */
+        .blob-1 {
+            width: 100vmax; height: 100vmax;
+            background: radial-gradient(circle at center, #cccccc 0%, rgba(204,204,204,0) 60%);
+            top: -30vmax; left: -20vmax;
+            animation: flow1 25s infinite linear;
+        }
+
+        .blob-2 {
+            width: 120vmax; height: 120vmax;
+            background: radial-gradient(circle at center, #dddddd 0%, rgba(221,221,221,0) 60%);
+            bottom: -40vmax; right: -30vmax;
+            animation: flow2 30s infinite linear reverse;
+        }
+
+        .blob-3 {
+            width: 90vmax; height: 90vmax;
+            background: radial-gradient(circle at center, #eeeeee 0%, rgba(238,238,238,0) 60%);
+            top: 20vh; left: 30vw;
+            animation: flow3 22s infinite linear;
+        }
+
+        /* ゆっくりと回転させながら、少しだけ位置をずらして流体感を出す */
+        @keyframes flow1 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(5vw, 5vh) scale(1.05); }
+            66% { transform: rotate(240deg) translate(-5vw, 10vh) scale(0.95); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+        @keyframes flow2 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(-10vw, -5vh) scale(1.05); }
+            66% { transform: rotate(240deg) translate(5vw, -10vh) scale(0.95); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+        @keyframes flow3 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(10vw, -10vh) scale(0.95); }
+            66% { transform: rotate(240deg) translate(-10vw, 5vh) scale(1.05); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #333;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="bg-fluid">
+        <div class="fluid-blob blob-1"></div>
+        <div class="fluid-blob blob-2"></div>
+        <div class="fluid-blob blob-3"></div>
+    </div>
+    <div class="center-text">
+        <h2>背景マーブルの動きテスト</h2>
+        <p>3つの大きな「歪な円（アメーバ形）」が、<br>ゆっくりと回転・拡大縮小しながら混ざり合っています。<br>（※動きがわかりやすいよう赤い点線の枠をつけています）</p>
+    </div>
+</body>
+</html>
