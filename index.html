@@ -846,7 +846,7 @@
         <p>&copy; 2026 舞色 - ∑ay][. All rights reserved.</p>
     </footer>
 
-    <!-- インタラクション＆スライドショー用 JavaScript -->
+ <!-- インタラクション＆スライドショー用 JavaScript -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // ローディング画面の要素
@@ -857,26 +857,40 @@
 
             if(!loaderText) return;
 
-            // 「∑ay][」がクリックされた時の処理
-            loaderText.addEventListener('click', function() {
-                if (hasStarted) return;
-                hasStarted = true;
+            // ▼▼▼ 追加：ブラウザの記憶（セッションストレージ）を確認 ▼▼▼
+            const hasVisited = sessionStorage.getItem('visited');
 
-                // 1. 全ての波紋（リップル）にアニメーション開始クラスを付与
-                ripples.forEach(r => r.classList.add('active'));
-                
-                // 2. 2.8秒後に「∑ay][」をフェードアウト
-                setTimeout(() => {
-                    loaderText.classList.add('fade-out');
-                }, 2800);
+            if (hasVisited) {
+                // 既に訪問済み（詳細ページから戻ってきた時など）なら、演出を消してすぐ表示
+                loader.style.display = 'none';
+                document.body.classList.remove('is-loading');
+                startSlideshow();
+            } else {
+                // 初回訪問時：クリックイベントを設定
+                loaderText.addEventListener('click', function() {
+                    if (hasStarted) return;
+                    hasStarted = true;
 
-                // 3. 4.5秒後にローダー自体を隠し、メインサイトの文字や映像を浮き上がらせる
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    document.body.classList.remove('is-loading');
-                    startSlideshow(); // ここで映像スライドショーをスタート
-                }, 4500);
-            });
+                    // 一度演出を見たことをブラウザに記憶させる
+                    sessionStorage.setItem('visited', 'true');
+
+                    // 1. 全ての波紋（リップル）にアニメーション開始クラスを付与
+                    ripples.forEach(r => r.classList.add('active'));
+                    
+                    // 2. 2.8秒後に「∑ay][」をフェードアウト
+                    setTimeout(() => {
+                        loaderText.classList.add('fade-out');
+                    }, 2800);
+
+                    // 3. 4.5秒後にローダー自体を隠し、メインサイトの文字や映像を浮き上がらせる
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        document.body.classList.remove('is-loading');
+                        startSlideshow(); 
+                    }, 4500);
+                });
+            }
+            // ▲▲▲ 追加ここまで ▲▲▲
 
             // 映像スライドショーの処理
             function startSlideshow() {
