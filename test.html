@@ -3,88 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>背景マーブルの動きテスト</title>
+    <title>演出テスト版 - 舞色</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
-            background-color: #ffffff;
+            padding: 0;
             font-family: sans-serif;
+            background-color: transparent; 
+            overflow: hidden; /* テスト用なのでスクロールなし */
         }
 
-        /* 動きがわかりやすいように、要素の枠線を赤の点線で表示（後で消せます） */
+        /* ▼▼▼ 背景の流体マーブル（強力ブラー版） ▼▼▼ */
+        #bg-fluid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+            background-color: #f0f2f5; 
+            overflow: hidden;
+            filter: blur(70px); /* ここで強烈にぼかしてインクを溶かしています */
+            transform: translate3d(0, 0, 0); 
+            pointer-events: none;
+        }
+
         .fluid-blob {
             position: absolute;
-            /* アメーバのような歪な形にしています */
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            border-radius: 50%;
+            mix-blend-mode: multiply; /* 重なると色が濃くなる */
             opacity: 0.8;
             will-change: transform;
-            /* 動きを見るためのガイド線（実際のサイトにはありません） */
-            border: 2px dashed rgba(255, 0, 0, 0.2); 
         }
 
-        /* テスト用に、先ほどより少し濃いグレーにしています */
+        /* 舞色のイメージカラー（青）に少し寄せたシルバーグレー */
         .blob-1 {
-            width: 100vmax; height: 100vmax;
-            background: radial-gradient(circle at center, #cccccc 0%, rgba(204,204,204,0) 60%);
-            top: -30vmax; left: -20vmax;
-            animation: flow1 25s infinite linear;
+            width: 60vw; height: 60vw;
+            background-color: #c9d6e8; 
+            top: -10vh; left: -10vw;
+            animation: move1 18s infinite alternate ease-in-out;
         }
 
         .blob-2 {
-            width: 120vmax; height: 120vmax;
-            background: radial-gradient(circle at center, #dddddd 0%, rgba(221,221,221,0) 60%);
-            bottom: -40vmax; right: -30vmax;
-            animation: flow2 30s infinite linear reverse;
+            width: 70vw; height: 70vw;
+            background-color: #dbe4f0;
+            bottom: -20vh; right: -10vw;
+            animation: move2 22s infinite alternate ease-in-out;
         }
 
         .blob-3 {
-            width: 90vmax; height: 90vmax;
-            background: radial-gradient(circle at center, #eeeeee 0%, rgba(238,238,238,0) 60%);
-            top: 20vh; left: 30vw;
-            animation: flow3 22s infinite linear;
+            width: 50vw; height: 50vw;
+            background-color: #b5c7dd;
+            top: 40vh; left: 30vw;
+            animation: move3 25s infinite alternate-reverse ease-in-out;
         }
 
-        /* ゆっくりと回転させながら、少しだけ位置をずらして流体感を出す */
-        @keyframes flow1 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(5vw, 5vh) scale(1.05); }
-            66% { transform: rotate(240deg) translate(-5vw, 10vh) scale(0.95); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
-        }
-        @keyframes flow2 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(-10vw, -5vh) scale(1.05); }
-            66% { transform: rotate(240deg) translate(5vw, -10vh) scale(0.95); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
-        }
-        @keyframes flow3 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(10vw, -10vh) scale(0.95); }
-            66% { transform: rotate(240deg) translate(-10vw, 5vh) scale(1.05); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        .blob-4 {
+            width: 80vw; height: 80vw;
+            background-color: #e2e8f0;
+            top: 10vh; right: 20vw;
+            animation: move4 20s infinite alternate ease-in-out;
         }
 
-        .center-text {
+        @keyframes move1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30vw, 20vh) scale(1.3); }
+        }
+        @keyframes move2 {
+            0% { transform: translate(0, 0) scale(1.2); }
+            100% { transform: translate(-40vw, -20vh) scale(0.8); }
+        }
+        @keyframes move3 {
+            0% { transform: translate(0, 0) scale(0.8); }
+            100% { transform: translate(-30vw, -30vh) scale(1.4); }
+        }
+        @keyframes move4 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20vw, 40vh) scale(1.1); }
+        }
+
+        /* ▼▼▼ 波紋ローディング演出 ▼▼▼ */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 1s ease;
+        }
+
+        #loader.hidden {
+            opacity: 0; pointer-events: none;
+        }
+
+        #loader-ripples {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 1;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .ripple {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
+            transform: scale(0) rotate(0deg); opacity: 0;
+            transform-origin: center center;
+            will-change: transform, opacity;
+        }
+
+        /* 淡いパステル調の波 */
+        .ripple-1 { width: 150vmax; height: 150vmax; background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9)); }
+        .ripple-2 { width: 160vmax; height: 160vmax; background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9)); }
+        .ripple-3 { width: 170vmax; height: 170vmax; background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9)); }
+        .ripple-white { width: 200vmax; height: 200vmax; background: #ffffff; border-radius: 50%; }
+
+        .ripple.active:not(.ripple-white) { animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .ripple-1.active { animation-delay: 0s; }
+        .ripple-2.active { animation-delay: 0.5s; }
+        .ripple-3.active { animation-delay: 1.0s; }
+        .ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 2.2s; }
+
+        @keyframes rippleGrow {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+        }
+        @keyframes rippleWhiteGrow {
+            0% { transform: scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.5); opacity: 1; }
+        }
+
+        #loader-text {
+            position: relative; z-index: 3; color: #fff;
+            font-size: 2.5rem; font-weight: 300; letter-spacing: 0.2em;
+            cursor: pointer; transition: opacity 1s ease, transform 0.3s ease, text-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        #loader-text:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        #loader-text.fade-out { opacity: 0; transform: scale(0.9); }
+
+        /* ▼▼▼ 確認用のダミーテキスト ▼▼▼ */
+        .test-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             color: #333;
-            pointer-events: none;
+            text-align: center;
+        }
+        .test-content h1 {
+            font-size: 3rem;
+            letter-spacing: 0.2em;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+
+    <!-- 背景の流体マーブル -->
     <div id="bg-fluid">
         <div class="fluid-blob blob-1"></div>
         <div class="fluid-blob blob-2"></div>
         <div class="fluid-blob blob-3"></div>
+        <div class="fluid-blob blob-4"></div>
     </div>
-    <div class="center-text">
-        <h2>背景マーブルの動きテスト</h2>
-        <p>3つの大きな「歪な円（アメーバ形）」が、<br>ゆっくりと回転・拡大縮小しながら混ざり合っています。<br>（※動きがわかりやすいよう赤い点線の枠をつけています）</p>
+
+    <!-- ローディング画面 -->
+    <div id="loader">
+        <div id="loader-ripples">
+            <div class="ripple ripple-1"></div>
+            <div class="ripple ripple-2"></div>
+            <div class="ripple ripple-3"></div>
+            <div class="ripple ripple-white"></div>
+        </div>
+        <div id="loader-text">∑ay][</div>
     </div>
+
+    <!-- メインコンテンツ（テスト用） -->
+    <div class="test-content">
+        <h1>背景演出テスト</h1>
+        <p>後ろでシルバーブルーのインクがゆっくりと溶け合っています。<br>ブラウザをリロードすると、もう一度ローディングから確認できます。</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loaderText = document.getElementById('loader-text');
+            const loader = document.getElementById('loader');
+            const ripples = document.querySelectorAll('.ripple');
+            let hasStarted = false;
+
+            loaderText.addEventListener('click', function() {
+                if (hasStarted) return;
+                hasStarted = true;
+
+                ripples.forEach(r => r.classList.add('active'));
+                
+                setTimeout(() => {
+                    loaderText.classList.add('fade-out');
+                }, 2800);
+
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 4500);
+            });
+        });
+    </script>
 </body>
 </html>
