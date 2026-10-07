@@ -78,38 +78,33 @@
             align-items: center;
         }
 
-        /* 波紋の共通設定 */
         .ripple {
             position: absolute;
             border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
             transform: scale(0) rotate(0deg);
             opacity: 0;
             transform-origin: center center;
-            /* 動作を軽くするためのGPU最適化設定 */
             will-change: transform, opacity;
         }
 
-        /* 目に優しいパステル調・ペールトーンのグラデーション */
         .ripple-1 {
             width: 150vmax; height: 150vmax;
-            background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9)); /* 淡いブルー */
+            background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9));
         }
         .ripple-2 {
             width: 160vmax; height: 160vmax;
-            background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9)); /* 淡いパープル */
+            background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9));
         }
         .ripple-3 {
             width: 170vmax; height: 170vmax;
-            background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9)); /* 淡いピンク */
+            background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9));
         }
-        /* 最後の白い波紋は完全な円形 */
         .ripple-white {
             width: 200vmax; height: 200vmax;
             background: #ffffff;
             border-radius: 50%; 
         }
 
-        /* アニメーションの適用 */
         .ripple.active:not(.ripple-white) {
             animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
@@ -123,19 +118,10 @@
             animation-delay: 2.2s; 
         }
 
-        /* 軽量化された波紋アニメーション */
         @keyframes rippleGrow {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            20% {
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.5) rotate(180deg);
-                opacity: 1;
-            }
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: scale(1.5) rotate(180deg); opacity: 1; }
         }
 
         @keyframes rippleWhiteGrow {
@@ -144,7 +130,6 @@
             100% { transform: scale(1.5); opacity: 1; }
         }
 
-        /* テキスト「∑ay][」 */
         #loader-text {
             position: relative;
             z-index: 3;
@@ -343,6 +328,7 @@
             display: flex;
             gap: 50px;
             align-items: flex-start;
+            margin-bottom: 60px; /* 下の要素との余白を追加 */
         }
 
         .about-image {
@@ -395,6 +381,72 @@
             height: 100%;
             object-fit: cover;
         }
+
+        /* ▼▼▼ 追加：プロフィール詳細（プロフィール帳・経歴） ▼▼▼ */
+        
+        .detail-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--bg-sub);
+            padding-bottom: 10px;
+            margin-top: 60px;
+            margin-bottom: 30px;
+        }
+
+        /* プロフィール帳（定義リストによるグリッド） */
+        .profile-book {
+            display: grid;
+            /* 左側(項目名)は文字数に合わせて、右側(内容)は余った幅すべて */
+            grid-template-columns: max-content 1fr;
+            gap: 15px 30px;
+            background-color: var(--bg-sub);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 0;
+        }
+
+        .profile-book dt {
+            font-weight: bold;
+            color: var(--accent-blue);
+            text-align: right;
+            border-right: 2px solid #e0e0e0; /* 項目の区切り線 */
+            padding-right: 15px;
+        }
+
+        .profile-book dd {
+            margin: 0;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* 経歴欄（リスト形式） */
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history-item {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: baseline; /* テキストの底辺を揃える */
+        }
+
+        .history-date {
+            font-weight: bold;
+            color: var(--accent-blue);
+            width: 120px; /* 年月の幅を固定 */
+            flex-shrink: 0; /* 幅が縮まないようにする */
+        }
+
+        .history-event {
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ▲▲▲ 追加部分ここまで ▲▲▲ */
+
 
         /* --- 活動実績（Works）セクション --- */
         #works {
@@ -523,6 +575,25 @@
             .header-logo { font-size: 1.2rem; }
             .header-nav ul { gap: 15px; }
             .header-nav a { font-size: 0.85rem; }
+            
+            /* プロフィール帳＆経歴のスマホ対応 */
+            .profile-book {
+                grid-template-columns: 1fr; /* スマホでは縦並びに */
+                gap: 5px 15px;
+            }
+            .profile-book dt {
+                text-align: left;
+                border-right: none;
+                margin-top: 15px;
+            }
+            .profile-book dt:first-child { margin-top: 0; }
+            
+            .history-item {
+                flex-direction: column; /* 年月と内容を縦並びに */
+            }
+            .history-date {
+                margin-bottom: 5px;
+            }
         }
     </style>
 </head>
@@ -574,6 +645,8 @@
 
     <section id="about" class="section container">
         <h2 class="section-title">Profile</h2>
+        
+        <!-- ▼ 立ち絵と自己紹介テキスト ▼ -->
         <div class="about-wrapper">
             <div class="about-image">
                 <img src="images/Profile/001.png" alt="舞色の立ち絵">
@@ -602,6 +675,60 @@
                 </div>
             </div>
         </div>
+
+        <!-- ▼ 新規追加：プロフィール詳細エリア ▼ -->
+        <div class="profile-details">
+            
+            <!-- プロフィール帳 -->
+            <h3 class="detail-title">Profile Book</h3>
+            <dl class="profile-book">
+                <dt>あだ名</dt>
+                <dd>まいきゅあ</dd>
+                
+                <dt>誕生日</dt>
+                <dd>5月1日</dd>
+                
+                <dt>好きなもの</dt>
+                <dd>ポチャッコ、音ゲー、ダンス、ねこ</dd>
+
+                <dt>嫌いなもの</dt>
+                <dd>ホラー、からいもの</dd>
+                
+                <dt>特技</dt>
+                <dd>踊ること（Pop、アニメーション）、Unity Shader開発</dd>
+                
+                <dt></dt>
+                <dd>ポチャッコは人生、ポチャッコと一心同体。</dd>
+            </dl>
+
+            <!-- 経歴欄 -->
+            <h3 class="detail-title">History</h3>
+            <ul class="history-list">
+                <li class="history-item">
+                    <span class="history-date">2026.02</span>
+                    <span class="history-event">SanrioVirtualFestival2026 出演</span>
+                </li>
+                <li class="history-item">
+                    <span class="history-date">2025.12-2026.05</span>
+                    <span class="history-event">バーチャルピューロアンバサダー1期生</span>
+                </li>
+                <li class="history-item">
+                    <span class="history-date">2025.02-03/2025.09</span>
+                    <span class="history-event">SanrioVirtualFestival2025アンバサダー</span>
+                </li>
+                <li class="history-item">
+                    <span class="history-date">2024.09</span>
+                    <span class="history-event">ドットエスティメタバース（現アンドエスティメタバース）HAREアンバサダー</span>
+                </li>
+                <li class="history-item">
+                    <span class="history-date">2024.02-03/2024.09</span>
+                    <span class="history-event">SANRIO VIRUTALFESTIVAL2024アンバサダー</span>
+                </li>
+            </ul>
+
+        </div>
+        <!-- ▲ 新規追加エリアここまで ▲ -->
+
     </section>
 
     <section id="works" class="section">
@@ -615,7 +742,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat<br>ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ<br>「魚類による考古学」<br>リニューアル</h3>
+                        <h3 class="work-title">VRChat ﾊﾟｰﾃｨｸﾙﾗｲﾌﾞ<br>「魚類による考古学」<br>リニューアル</h3>
                         <div class="work-date">2026.09.26</div>
                         <p class="work-desc">Live_li_V_e -漂流日記-で披露した [-蝕-]のアンサーﾊﾟｰﾃｨｸﾙﾗｲﾌﾞです。</p>
                     </div>
@@ -627,7 +754,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat<br>Live_li_V_e -KASANe-</h3>
+                        <h3 class="work-title">VRChat Live_li_V_e -KASANe-</h3>
                         <div class="work-date">2026.09.24</div>
                         <p class="work-desc">夜の水族館で夢を見る。とのコラボ。</p>
                     </div>
@@ -651,7 +778,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat<br>井上正大主催デバッグフェス・1stライブ制作</h3>
+                        <h3 class="work-title">VRChat<br>井上正大主催デバッグフェス・1stライブ<br>制作</h3>
                         <div class="work-date">2026.05.11-7.10</div>
                         <p class="work-desc">ライブ演出/監督</p>
                     </div>
@@ -663,7 +790,7 @@
                         <img src="https://placehold.co/600x338/cbd5e1/64748b?text=Direction+1" alt="サムネイル">
                     </div>
                     <div class="work-info">
-                        <h3 class="work-title">VRChat<br>Virtual Puro Spaking Spling<br>"Besties"制作など</h3>
+                        <h3 class="work-title">VRChat<br>Virtual Puro<br>Sparking Spling<br>"Besties"制作など</h3>
                         <div class="work-date">2026.05.07</div>
                         <p class="work-desc">出演、制作進行、モデリング、ワールドコーディネーター、などなど……</p>
                     </div>
