@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function startSlideshow() {
         const slides = document.querySelectorAll('.slide-video');
         let currentSlide = 0;
-        const slideInterval = 5000; 
+        const slideInterval = 4000; 
 
         if(slides.length === 0) return;
         
