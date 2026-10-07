@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>軽量・輪郭うねうねインク テスト</title>
+    <title>極・流体インク（Gooey融合版）テスト</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #000; overflow: hidden;
@@ -16,93 +16,93 @@
             z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
 
-        /* SVGを使わず、CSSの軽い「ぼかし」だけでエッジを少しだけ馴染ませる */
         #loader-ripples {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             overflow: hidden; z-index: 1;
-            filter: blur(8px); /* 輪郭を少しだけ柔らかくする */
-            transition: filter 2.5s ease;
         }
 
-        /* ぐるぐる混ぜる時に一気に色を溶け合わせる */
-        #loader-ripples.stir {
-            filter: blur(30px);
-        }
-
-        /* インクの共通設定 */
-        .ripple {
-            position: absolute;
+        /* ▼▼▼ 流体エフェクトのキモ：Gooey（スライム融合）フィルター ▼▼▼ */
+        .ink-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* 複数の円が近づいた時に「水滴のように融合する」フィルター */
+            filter: url(#goo);
+            mix-blend-mode: screen; /* 違う色同士が重なると綺麗に光る */
             transform: scale(0) rotate(0deg); opacity: 0;
-            transform-origin: center center;
-            mix-blend-mode: screen; /* 色が重なると光を放つように綺麗に混ざる */
-            will-change: transform, opacity, border-radius; /* GPUで処理して超軽量化 */
+            will-change: transform, opacity;
         }
 
-        /* 中身をしっかりと色で埋める（ベタ塗りに近い形） */
-        /* ① 最初：真ん中に落ちるメインの青 */
-        .ripple-1 { 
-            width: 100vmax; height: 100vmax; top: 50%; left: 50%; margin-top: -50vmax; margin-left: -50vmax;
-            background-color: rgba(0, 136, 255, 0.9); 
-        }
-        /* ② 次：右下から来る紫 */
-        .ripple-2 { 
-            width: 120vmax; height: 120vmax; top: 75%; left: 75%; margin-top: -60vmax; margin-left: -60vmax;
-            background-color: rgba(140, 0, 255, 0.85); 
-        }
-        /* ③ 最後：左上から来る水色 */
-        .ripple-3 { 
-            width: 130vmax; height: 130vmax; top: 25%; left: 25%; margin-top: -65vmax; margin-left: -65vmax;
-            background-color: rgba(0, 255, 200, 0.85); 
-        }
+        /* インクを落とす位置（真ん中、右下、左上） */
+        .ink-blue { transform-origin: 50% 50%; }
+        .ink-purple { transform-origin: 75% 75%; }
+        .ink-cyan { transform-origin: 25% 25%; }
+        .ink-white { transform-origin: 50% 50%; mix-blend-mode: normal; }
+
+        /* 中身をベタ塗りで埋める色指定 */
+        .bg-blue { background-color: rgba(0, 136, 255, 0.95); }
+        .bg-purple { background-color: rgba(140, 0, 255, 0.95); }
+        .bg-cyan { background-color: rgba(0, 255, 200, 0.95); }
+        .bg-white { background-color: #ffffff; }
+
+        /* インクを構成する粒たち */
+        .main-drop, .sub-drop { position: absolute; border-radius: 50%; }
+
+        /* =========================================
+           各色のインクの形（大きな円の周りを小さな円が回ることで、輪郭が波打つ）
+        ========================================= */
         
-        /* すべてを飲み込む純白 */
-        .ripple-white { 
-            width: 300vmax; height: 300vmax; top: 50%; left: 50%; margin-top: -150vmax; margin-left: -150vmax;
-            background: #ffffff; mix-blend-mode: normal; border-radius: 50%;
-        }
+        /* ① 真ん中に落ちる青 */
+        .ink-blue .main-drop { width: 40vmax; height: 40vmax; top: 50%; left: 50%; margin: -20vmax; }
+        .ink-blue .d1 { width: 30vmax; height: 30vmax; top: 50%; left: 50%; margin: -15vmax; transform-origin: 15vmax 10vmax; animation: wobble 3s infinite linear; }
+        .ink-blue .d2 { width: 25vmax; height: 25vmax; top: 50%; left: 50%; margin: -12.5vmax; transform-origin: -15vmax -20vmax; animation: wobble 4s infinite linear reverse; }
+        .ink-blue .d3 { width: 35vmax; height: 35vmax; top: 50%; left: 50%; margin: -17.5vmax; transform-origin: 20vmax -10vmax; animation: wobble 3.5s infinite linear; }
 
-        /* アニメーションの発火設定（動きが止まらないよう linear に近いイージング） */
-        .ripple.active:not(.ripple-white) { animation: inkSpread 5.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        /* ② 右下から広がる紫 */
+        .ink-purple .main-drop { width: 45vmax; height: 45vmax; top: 75%; left: 75%; margin: -22.5vmax; }
+        .ink-purple .d1 { width: 35vmax; height: 35vmax; top: 75%; left: 75%; margin: -17.5vmax; transform-origin: -20vmax 15vmax; animation: wobble 3.8s infinite linear; }
+        .ink-purple .d2 { width: 30vmax; height: 30vmax; top: 75%; left: 75%; margin: -15vmax; transform-origin: 15vmax -15vmax; animation: wobble 4.2s infinite linear reverse; }
+
+        /* ③ 左上から広がる水色 */
+        .ink-cyan .main-drop { width: 40vmax; height: 40vmax; top: 25%; left: 25%; margin: -20vmax; }
+        .ink-cyan .d1 { width: 35vmax; height: 35vmax; top: 25%; left: 25%; margin: -17.5vmax; transform-origin: 18vmax 18vmax; animation: wobble 3.5s infinite linear reverse; }
+        .ink-cyan .d2 { width: 25vmax; height: 25vmax; top: 25%; left: 25%; margin: -12.5vmax; transform-origin: -18vmax 15vmax; animation: wobble 4.5s infinite linear; }
+
+        /* ④ 最後にすべてを白くする */
+        .ink-white .main-drop { width: 100vmax; height: 100vmax; top: 50%; left: 50%; margin: -50vmax; }
+
+        /* 小さな円を回転させる（Gooeyフィルターのおかげで、輪郭が波打っているように見える） */
+        @keyframes wobble { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* =========================================
+           インクが落ちてからのアニメーション
+        ========================================= */
+        .ripple.active { animation: spreadInk 6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
         
-        /* 完璧な時間差（ぽつ、ぽつ、ぽつ） */
-        .ripple-1.active { animation-delay: 0s; }
-        .ripple-2.active { animation-delay: 0.6s; }
-        .ripple-3.active { animation-delay: 1.2s; }
-        .ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 3.5s; }
+        /* 完璧な時間差でインクを垂らす */
+        .ink-blue.active { animation-delay: 0s; }
+        .ink-purple.active { animation-delay: 0.8s; } /* 0.8秒遅れ */
+        .ink-cyan.active { animation-delay: 1.6s; }   /* 1.6秒遅れ */
+        
+        .ink-white.active { animation: fillWhite 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 4.5s; }
 
-        /* ▼ 輪郭がうねうねと動き続けるアニメーション ▼ */
-        @keyframes inkSpread { 
-            0% { 
-                transform: scale(0) rotate(0deg); opacity: 0; 
-                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
-            } 
+        @keyframes spreadInk {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
             5% { opacity: 0.95; }
-            /* 常に回転・拡大を続けながら、輪郭の形（border-radius）をランダムに変化させる */
-            30% { 
-                transform: scale(0.6) rotate(120deg); opacity: 0.95; 
-                border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%; 
-            }
-            60% { 
-                transform: scale(1.3) rotate(360deg); opacity: 0.95; 
-                border-radius: 30% 70% 40% 60% / 60% 40% 70% 30%; 
-            }
-            /* 最後は筆でかき混ぜるように一気に爆発的回転 */
-            100% { 
-                transform: scale(4) rotate(720deg); opacity: 1; 
-                border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; /* 最終的に丸く落ち着く */
-            } 
+            /* 落ちた瞬間はじんわり広がる。輪郭が波打っているので停滞感はない */
+            40% { transform: scale(0.7) rotate(30deg); opacity: 0.95; }
+            /* 後半はかき混ぜるように一気に加速 */
+            100% { transform: scale(3.5) rotate(180deg); opacity: 1; }
         }
 
-        @keyframes rippleWhiteGrow { 
-            0% { transform: scale(0); opacity: 0; } 
-            50% { opacity: 1; } 
-            100% { transform: scale(1.5); opacity: 1; } 
+        @keyframes fillWhite {
+            0% { transform: scale(0); opacity: 0; }
+            40% { opacity: 1; }
+            100% { transform: scale(2.5); opacity: 1; }
         }
 
         /* --- 中央のテキスト演出 --- */
         #loader-text-wrapper {
             position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center;
-            cursor: pointer; user-select: none; transition: opacity 1.5s ease, transform 0.5s ease, filter 2s ease;
+            cursor: pointer; user-select: none; transition: opacity 2s ease, transform 0.5s ease, filter 2s ease;
         }
         #loader-text-wrapper:hover { transform: scale(1.05); }
         
@@ -130,14 +130,53 @@
 </head>
 <body>
 
+    <!-- ▼▼▼ 超軽量の流体融合フィルター ▼▼▼ -->
+    <svg style="width:0; height:0; position:absolute;">
+        <defs>
+            <!-- これが複数の円をスライムのように融合させる魔法のフィルターです -->
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="
+                    1 0 0 0 0  
+                    0 1 0 0 0  
+                    0 0 1 0 0  
+                    0 0 0 25 -10" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+
     <!-- ローディング画面 -->
     <div id="loader">
         <div id="loader-ripples">
-            <!-- タイミングをずらして垂らされる絵の具 -->
-            <div class="ripple ripple-1"></div>
-            <div class="ripple ripple-2"></div>
-            <div class="ripple ripple-3"></div>
-            <div class="ripple ripple-white"></div>
+            
+            <!-- ① 青インク（真ん中） -->
+            <div class="ink-layer ink-blue ripple">
+                <div class="main-drop bg-blue"></div>
+                <div class="sub-drop d1 bg-blue"></div>
+                <div class="sub-drop d2 bg-blue"></div>
+                <div class="sub-drop d3 bg-blue"></div>
+            </div>
+            
+            <!-- ② 紫インク（右下） -->
+            <div class="ink-layer ink-purple ripple">
+                <div class="main-drop bg-purple"></div>
+                <div class="sub-drop d1 bg-purple"></div>
+                <div class="sub-drop d2 bg-purple"></div>
+            </div>
+            
+            <!-- ③ 水色インク（左上） -->
+            <div class="ink-layer ink-cyan ripple">
+                <div class="main-drop bg-cyan"></div>
+                <div class="sub-drop d1 bg-cyan"></div>
+                <div class="sub-drop d2 bg-cyan"></div>
+            </div>
+            
+            <!-- ④ 白インク -->
+            <div class="ink-layer ink-white ripple">
+                <div class="main-drop bg-white"></div>
+            </div>
+
         </div>
         
         <div id="loader-text-wrapper">
@@ -149,7 +188,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const loaderWrapper = document.getElementById('loader-text-wrapper');
-            const ripplesContainer = document.getElementById('loader-ripples');
             const ripples = document.querySelectorAll('.ripple');
             let hasStarted = false;
 
@@ -157,15 +195,10 @@
                 if (hasStarted) return;
                 hasStarted = true;
 
-                // 1. 真ん中 → 右下 → 左上の順で自動的に発火
+                // 1. インクを落とす（CSSのディレイにより、真ん中→右下→左上の順番で発火）
                 ripples.forEach(r => r.classList.add('active'));
                 
-                // 2. 約2.5秒後：ブラーを強くして色を完全に混ざり合わせる
-                setTimeout(() => { 
-                    ripplesContainer.classList.add('stir'); 
-                }, 2500);
-                
-                // 3. 同時にテキストが溶け消える
+                // 2. 2.5秒後、インクが混ざり合うタイミングでテキストが溶け消える
                 setTimeout(() => { 
                     loaderWrapper.classList.add('fade-out'); 
                 }, 2500);
