@@ -168,7 +168,14 @@ a { text-decoration: none; color: inherit; }
 
 .header-logo { 
     font-size: 1.5rem; font-weight: bold; color: var(--accent-blue); letter-spacing: 0.1em; 
-    line-height: 1; /* 修正箇所：文字が持つ見えない上下の余白を消して、ピシッと下で揃える */
+    line-height: 1;
+}
+
+/* ▼▼▼ これを追加 ▼▼▼ */
+.header-logo .sigma {
+    display: inline-block;
+    /* 「∑」だけを強制的に少し下にズラして「a」の底辺と揃える */
+    transform: translateY(3px); 
 }
 
 .header-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; }
