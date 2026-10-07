@@ -29,9 +29,10 @@
             margin: 0;
             padding: 0;
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
-            background-color: var(--bg-color);
             color: var(--text-main);
             line-height: 1.6;
+            /* 背景は bg-ink で描画するため透明に */
+            background-color: transparent; 
         }
 
         a {
@@ -45,83 +46,73 @@
             padding: 0 20px;
         }
 
-       /* ▼▼▼ 背景の流体マーブル（流体感・見やすさUP版） ▼▼▼ */
-        #bg-fluid {
+        /* =========================================
+           1. 奥のレイヤー：流体インクマーブル（強力ブラー）
+        ========================================= */
+        #bg-ink {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             z-index: -10;
-            background-color: #f0f2f5; /* ほんの少しグレーがかった白のベース */
+            background-color: #f0f2f5; 
             overflow: hidden;
-            
-            /* 巨大なぼかしをかけて要素同士を完全に溶け合わせる（流体感のキモ） */
             filter: blur(70px); 
-            
-            /* GPUを強制的に使って軽くするおまじない */
             transform: translate3d(0, 0, 0); 
             pointer-events: none;
         }
 
-        .fluid-blob {
+        .ink-blob {
             position: absolute;
             border-radius: 50%;
-            /* 乗算にすることで、重なった部分の色が濃くなりマーブル感が出る */
             mix-blend-mode: multiply; 
             opacity: 0.8;
             will-change: transform;
         }
 
-        /* 舞色のイメージカラー（青）に少し寄せた、見やすいシルバーグレーのインク達 */
-        .blob-1 {
-            width: 60vw; height: 60vw;
-            background-color: #c9d6e8; 
-            top: -10vh; left: -10vw;
-            animation: move1 18s infinite alternate ease-in-out;
+        .ink-1 { width: 60vw; height: 60vw; background-color: #c9d6e8; top: -10vh; left: -10vw; animation: move1 18s infinite alternate ease-in-out; }
+        .ink-2 { width: 70vw; height: 70vw; background-color: #dbe4f0; bottom: -20vh; right: -10vw; animation: move2 22s infinite alternate ease-in-out; }
+        .ink-3 { width: 50vw; height: 50vw; background-color: #b5c7dd; top: 40vh; left: 30vw; animation: move3 25s infinite alternate-reverse ease-in-out; }
+        .ink-4 { width: 80vw; height: 80vw; background-color: #e2e8f0; top: 10vh; right: 20vw; animation: move4 20s infinite alternate ease-in-out; }
+
+        @keyframes move1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30vw, 20vh) scale(1.3); } }
+        @keyframes move2 { 0% { transform: translate(0, 0) scale(1.2); } 100% { transform: translate(-40vw, -20vh) scale(0.8); } }
+        @keyframes move3 { 0% { transform: translate(0, 0) scale(0.8); } 100% { transform: translate(-30vw, -30vh) scale(1.4); } }
+        @keyframes move4 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(20vw, 40vh) scale(1.1); } }
+
+        /* =========================================
+           2. 手前のレイヤー：アウトラインマーブル（線のみ）
+        ========================================= */
+        #bg-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -9; 
+            overflow: hidden;
+            pointer-events: none;
         }
 
-        .blob-2 {
-            width: 70vw; height: 70vw;
-            background-color: #dbe4f0;
-            bottom: -20vh; right: -10vw;
-            animation: move2 22s infinite alternate ease-in-out;
+        .outline-blob {
+            position: absolute;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
+            background-color: transparent;
+            /* 太さを2pxにし、色を濃いブルーグレーにして視認性をアップ */
+            border: 2px solid rgba(110, 150, 220, 0.8); 
+            will-change: transform;
         }
 
-        .blob-3 {
-            width: 50vw; height: 50vw;
-            background-color: #b5c7dd;
-            top: 40vh; left: 30vw;
-            animation: move3 25s infinite alternate-reverse ease-in-out;
-        }
+        .outline-1 { width: 100vmax; height: 100vmax; top: -20vh; left: -10vw; animation: flow1 35s infinite linear; }
+        .outline-2 { width: 120vmax; height: 120vmax; bottom: -30vh; right: -20vw; animation: flow2 40s infinite linear reverse; }
+        .outline-3 { width: 90vmax; height: 90vmax; top: 20vh; left: 30vw; animation: flow3 30s infinite linear; }
 
-        .blob-4 {
-            width: 80vw; height: 80vw;
-            background-color: #e2e8f0;
-            top: 10vh; right: 20vw;
-            animation: move4 20s infinite alternate ease-in-out;
-        }
+        @keyframes flow1 { 0% { transform: rotate(0deg) translate(0, 0) scale(1); } 33% { transform: rotate(120deg) translate(5vw, 5vh) scale(1.05); } 66% { transform: rotate(240deg) translate(-5vw, 10vh) scale(0.95); } 100% { transform: rotate(360deg) translate(0, 0) scale(1); } }
+        @keyframes flow2 { 0% { transform: rotate(0deg) translate(0, 0) scale(1); } 33% { transform: rotate(120deg) translate(-10vw, -5vh) scale(1.05); } 66% { transform: rotate(240deg) translate(5vw, -10vh) scale(0.95); } 100% { transform: rotate(360deg) translate(0, 0) scale(1); } }
+        @keyframes flow3 { 0% { transform: rotate(0deg) translate(0, 0) scale(1); } 33% { transform: rotate(120deg) translate(10vw, -10vh) scale(0.95); } 66% { transform: rotate(240deg) translate(-10vw, 5vh) scale(1.05); } 100% { transform: rotate(360deg) translate(0, 0) scale(1); } }
 
-        /* 画面を大きく往復しながら伸縮させることで「流れ」を作る */
-        @keyframes move1 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30vw, 20vh) scale(1.3); }
-        }
-        @keyframes move2 {
-            0% { transform: translate(0, 0) scale(1.2); }
-            100% { transform: translate(-40vw, -20vh) scale(0.8); }
-        }
-        @keyframes move3 {
-            0% { transform: translate(0, 0) scale(0.8); }
-            100% { transform: translate(-30vw, -30vh) scale(1.4); }
-        }
-        @keyframes move4 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(20vw, 40vh) scale(1.1); }
-        }
-        /* ▲▲▲ 追加ここまで ▲▲▲ */
-
-        /* --- ローディング画面 (波紋マーブル演出・軽量版) --- */
+        /* --- ローディング画面 (波紋マーブル演出) --- */
         #loader {
             position: fixed;
             top: 0;
@@ -163,48 +154,19 @@
             will-change: transform, opacity;
         }
 
-        .ripple-1 {
-            width: 150vmax; height: 150vmax;
-            background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9));
-        }
-        .ripple-2 {
-            width: 160vmax; height: 160vmax;
-            background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9));
-        }
-        .ripple-3 {
-            width: 170vmax; height: 170vmax;
-            background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9));
-        }
-        .ripple-white {
-            width: 200vmax; height: 200vmax;
-            background: #ffffff;
-            border-radius: 50%; 
-        }
+        .ripple-1 { width: 150vmax; height: 150vmax; background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9)); }
+        .ripple-2 { width: 160vmax; height: 160vmax; background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9)); }
+        .ripple-3 { width: 170vmax; height: 170vmax; background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9)); }
+        .ripple-white { width: 200vmax; height: 200vmax; background: #ffffff; border-radius: 50%; }
 
-        .ripple.active:not(.ripple-white) {
-            animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
+        .ripple.active:not(.ripple-white) { animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         .ripple-1.active { animation-delay: 0s; }
         .ripple-2.active { animation-delay: 0.5s; }
         .ripple-3.active { animation-delay: 1.0s; }
-        
-        .ripple-white.active { 
-            animation: rippleWhiteGrow 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            animation-delay: 2.2s; 
-        }
+        .ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 2.2s; }
 
-        @keyframes rippleGrow {
-            0% { transform: scale(0) rotate(0deg); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: scale(1.5) rotate(180deg); opacity: 1; }
-        }
-
-        @keyframes rippleWhiteGrow {
-            0% { transform: scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: scale(1.5); opacity: 1; }
-        }
+        @keyframes rippleGrow { 0% { transform: scale(0) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(1.5) rotate(180deg); opacity: 1; } }
+        @keyframes rippleWhiteGrow { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1.5); opacity: 1; } }
 
         #loader-text {
             position: relative;
@@ -367,7 +329,6 @@
         .concept-bar {
             padding: 80px 20px 40px;
             text-align: center;
-            background-color: var(--bg-color);
             background-color: transparent;
         }
 
@@ -405,7 +366,7 @@
             display: flex;
             gap: 50px;
             align-items: flex-start;
-            margin-bottom: 60px; /* 下の要素との余白を追加 */
+            margin-bottom: 60px;
         }
 
         .about-image {
@@ -459,35 +420,33 @@
             object-fit: cover;
         }
 
-        /* ▼▼▼ 追加：プロフィール詳細（プロフィール帳・経歴） ▼▼▼ */
-        
+        /* プロフィール詳細（プロフィール帳・経歴） */
         .detail-title {
             font-size: 1.4rem;
             font-weight: bold;
             color: var(--text-main);
-            border-bottom: 2px solid var(--bg-sub);
+            border-bottom: 2px solid var(--text-sub);
             padding-bottom: 10px;
             margin-top: 60px;
             margin-bottom: 30px;
         }
 
-        /* プロフィール帳（定義リストによるグリッド） */
         .profile-book {
             display: grid;
-            /* 左側(項目名)は文字数に合わせて、右側(内容)は余った幅すべて */
             grid-template-columns: max-content 1fr;
             gap: 15px 30px;
-            background-color: var(--bg-sub);
+            background-color: var(--bg-sub); 
             padding: 30px;
             border-radius: 8px;
             margin: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
         }
 
         .profile-book dt {
             font-weight: bold;
             color: var(--accent-blue);
             text-align: right;
-            border-right: 2px solid #e0e0e0; /* 項目の区切り線 */
+            border-right: 2px solid #e0e0e0;
             padding-right: 15px;
         }
 
@@ -497,7 +456,6 @@
             line-height: 1.6;
         }
 
-        /* 経歴欄（リスト形式） */
         .history-list {
             list-style: none;
             padding: 0;
@@ -507,14 +465,14 @@
         .history-item {
             display: flex;
             margin-bottom: 20px;
-            align-items: baseline; /* テキストの底辺を揃える */
+            align-items: baseline; 
         }
 
         .history-date {
             font-weight: bold;
             color: var(--accent-blue);
-            width: 120px; /* 年月の幅を固定 */
-            flex-shrink: 0; /* 幅が縮まないようにする */
+            width: 120px; 
+            flex-shrink: 0; 
         }
 
         .history-event {
@@ -522,12 +480,9 @@
             line-height: 1.6;
         }
 
-        /* ▲▲▲ 追加部分ここまで ▲▲▲ */
-
-
         /* --- 活動実績（Works）セクション --- */
         #works {
-            background-color: transparent;
+            background-color: transparent; 
         }
 
         .works-grid {
@@ -540,7 +495,7 @@
             background-color: var(--bg-color);
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: block;
         }
@@ -643,47 +598,45 @@
                 -webkit-text-stroke: 2px #ffffff;
                 transform: translateY(40%); 
             }
-            .concept-text { 
-                font-size: 1.5rem; 
-                letter-spacing: 0.2em;
-            }
+            .concept-text { font-size: 1.5rem; letter-spacing: 0.2em; }
             .about-wrapper { flex-direction: column; gap: 30px; }
             .about-image { max-width: 100%; }
             .header-logo { font-size: 1.2rem; }
             .header-nav ul { gap: 15px; }
             .header-nav a { font-size: 0.85rem; }
             
-            /* プロフィール帳＆経歴のスマホ対応 */
-            .profile-book {
-                grid-template-columns: 1fr; /* スマホでは縦並びに */
-                gap: 5px 15px;
-            }
-            .profile-book dt {
-                text-align: left;
-                border-right: none;
-                margin-top: 15px;
-            }
+            .profile-book { grid-template-columns: 1fr; gap: 5px 15px; }
+            .profile-book dt { text-align: left; border-right: none; margin-top: 15px; }
             .profile-book dt:first-child { margin-top: 0; }
             
-            .history-item {
-                flex-direction: column; /* 年月と内容を縦並びに */
-            }
-            .history-date {
-                margin-bottom: 5px;
-            }
+            .history-item { flex-direction: column; }
+            .history-date { margin-bottom: 5px; }
         }
     </style>
 </head>
 <body class="is-loading">
 
+    <!-- 1. 奥のレイヤー：ぼかしインク -->
+    <div id="bg-ink">
+        <div class="ink-blob ink-1"></div>
+        <div class="ink-blob ink-2"></div>
+        <div class="ink-blob ink-3"></div>
+        <div class="ink-blob ink-4"></div>
+    </div>
+
+    <!-- 2. 手前のレイヤー：くっきりアウトライン -->
+    <div id="bg-outline">
+        <div class="outline-blob outline-1"></div>
+        <div class="outline-blob outline-2"></div>
+        <div class="outline-blob outline-3"></div>
+    </div>
+
     <!-- インタラクティブ・ローディング画面 -->
     <div id="loader">
         <div id="loader-ripples">
-            <!-- 少しずつ時間をズラして広がる有機的な波 -->
             <div class="ripple ripple-1"></div>
             <div class="ripple ripple-2"></div>
             <div class="ripple ripple-3"></div>
-            <!-- すべてを白で包み込む最後の波 -->
             <div class="ripple ripple-white"></div>
         </div>
         <div id="loader-text">∑ay][</div>
