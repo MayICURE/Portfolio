@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>極・流体インク（Gooey融合版）テスト</title>
+    <title>極・流体インク（Gooey融合・見切れ修正版）</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #000; overflow: hidden;
@@ -24,9 +24,8 @@
         /* ▼▼▼ 流体エフェクトのキモ：Gooey（スライム融合）フィルター ▼▼▼ */
         .ink-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 複数の円が近づいた時に「水滴のように融合する」フィルター */
             filter: url(#goo);
-            mix-blend-mode: screen; /* 違う色同士が重なると綺麗に光る */
+            mix-blend-mode: screen; 
             transform: scale(0) rotate(0deg); opacity: 0;
             will-change: transform, opacity;
         }
@@ -43,11 +42,10 @@
         .bg-cyan { background-color: rgba(0, 255, 200, 0.95); }
         .bg-white { background-color: #ffffff; }
 
-        /* インクを構成する粒たち */
         .main-drop, .sub-drop { position: absolute; border-radius: 50%; }
 
         /* =========================================
-           各色のインクの形（大きな円の周りを小さな円が回ることで、輪郭が波打つ）
+           各色のインクの形
         ========================================= */
         
         /* ① 真ん中に落ちる青 */
@@ -69,7 +67,6 @@
         /* ④ 最後にすべてを白くする */
         .ink-white .main-drop { width: 100vmax; height: 100vmax; top: 50%; left: 50%; margin: -50vmax; }
 
-        /* 小さな円を回転させる（Gooeyフィルターのおかげで、輪郭が波打っているように見える） */
         @keyframes wobble { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* =========================================
@@ -77,19 +74,16 @@
         ========================================= */
         .ripple.active { animation: spreadInk 6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
         
-        /* 完璧な時間差でインクを垂らす */
         .ink-blue.active { animation-delay: 0s; }
-        .ink-purple.active { animation-delay: 0.8s; } /* 0.8秒遅れ */
-        .ink-cyan.active { animation-delay: 1.6s; }   /* 1.6秒遅れ */
+        .ink-purple.active { animation-delay: 0.8s; } 
+        .ink-cyan.active { animation-delay: 1.6s; }   
         
         .ink-white.active { animation: fillWhite 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 4.5s; }
 
         @keyframes spreadInk {
             0% { transform: scale(0) rotate(0deg); opacity: 0; }
             5% { opacity: 0.95; }
-            /* 落ちた瞬間はじんわり広がる。輪郭が波打っているので停滞感はない */
             40% { transform: scale(0.7) rotate(30deg); opacity: 0.95; }
-            /* 後半はかき混ぜるように一気に加速 */
             100% { transform: scale(3.5) rotate(180deg); opacity: 1; }
         }
 
@@ -106,7 +100,6 @@
         }
         #loader-text-wrapper:hover { transform: scale(1.05); }
         
-        /* 混ざるインクに溶け込むように消える */
         #loader-text-wrapper.fade-out { 
             opacity: 0; transform: scale(0.8) translateY(-20px); filter: blur(15px); 
         }
@@ -130,11 +123,10 @@
 </head>
 <body>
 
-    <!-- ▼▼▼ 超軽量の流体融合フィルター ▼▼▼ -->
     <svg style="width:0; height:0; position:absolute;">
         <defs>
-            <!-- これが複数の円をスライムのように融合させる魔法のフィルターです -->
-            <filter id="goo">
+            <!-- ▼▼▼ 修正点：フィルターの描画領域（キャンバス）を画面の3倍に拡張しました ▼▼▼ -->
+            <filter id="goo" x="-100%" y="-100%" width="300%" height="300%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
                 <feColorMatrix in="blur" mode="matrix" values="
                     1 0 0 0 0  
@@ -150,7 +142,6 @@
     <div id="loader">
         <div id="loader-ripples">
             
-            <!-- ① 青インク（真ん中） -->
             <div class="ink-layer ink-blue ripple">
                 <div class="main-drop bg-blue"></div>
                 <div class="sub-drop d1 bg-blue"></div>
@@ -158,21 +149,18 @@
                 <div class="sub-drop d3 bg-blue"></div>
             </div>
             
-            <!-- ② 紫インク（右下） -->
             <div class="ink-layer ink-purple ripple">
                 <div class="main-drop bg-purple"></div>
                 <div class="sub-drop d1 bg-purple"></div>
                 <div class="sub-drop d2 bg-purple"></div>
             </div>
             
-            <!-- ③ 水色インク（左上） -->
             <div class="ink-layer ink-cyan ripple">
                 <div class="main-drop bg-cyan"></div>
                 <div class="sub-drop d1 bg-cyan"></div>
                 <div class="sub-drop d2 bg-cyan"></div>
             </div>
             
-            <!-- ④ 白インク -->
             <div class="ink-layer ink-white ripple">
                 <div class="main-drop bg-white"></div>
             </div>
@@ -195,10 +183,8 @@
                 if (hasStarted) return;
                 hasStarted = true;
 
-                // 1. インクを落とす（CSSのディレイにより、真ん中→右下→左上の順番で発火）
                 ripples.forEach(r => r.classList.add('active'));
                 
-                // 2. 2.5秒後、インクが混ざり合うタイミングでテキストが溶け消える
                 setTimeout(() => { 
                     loaderWrapper.classList.add('fade-out'); 
                 }, 2500);
