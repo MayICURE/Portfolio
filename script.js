@@ -1,18 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     
     // --- 1. ローディング演出の制御 ---
-    const loaderWrapper = document.getElementById('loader-text-wrapper'); // 変更：文字全体を包むラッパーを取得
+    const loaderWrapper = document.getElementById('loader-text-wrapper');
     const loader = document.getElementById('loader');
     const ripples = document.querySelectorAll('.ripple');
-    const ripplesContainer = document.getElementById('loader-ripples');
     let hasStarted = false;
 
-    // トップページ（ローディング画面がある場合）の処理
     if (loaderWrapper && loader) {
         const hasVisited = sessionStorage.getItem('visited');
 
         if (hasVisited) {
-            // 訪問済みの場合はすぐ表示
+            // 訪問済みの場合はローディング画面をスキップしてすぐ表示
             loader.style.display = 'none';
             document.body.classList.remove('is-loading');
             startSlideshow();
@@ -23,25 +21,24 @@ document.addEventListener("DOMContentLoaded", function() {
                 hasStarted = true;
                 sessionStorage.setItem('visited', 'true');
 
-                // インクを順番に広げる
+                // インクを順番に広げる（CSSのディレイに依存）
                 ripples.forEach(r => r.classList.add('active'));
                 
-                // 2秒後：ぐるぐるかき混ぜるタイミングでブラー（ぼかし）をさらに強める
-                setTimeout(() => { ripplesContainer.classList.add('stir'); }, 2000);
-                
-                // 2.2秒後：文字がインクに溶けるようにフェードアウト
-                setTimeout(() => { loaderWrapper.classList.add('fade-out'); }, 2200);
+                // 2.5秒後：テキストがインクに溶け消える
+                setTimeout(() => {
+                    loaderWrapper.classList.add('fade-out');
+                }, 2500);
 
-                // 6秒後：全体が白くなった後、ローダーを消してスライドショー開始
+                // 6秒後：最後の白インクが画面を覆い尽くしたタイミングで本編へ切り替え
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     document.body.classList.remove('is-loading');
                     startSlideshow(); 
-                }, 6000); 
+                }, 6000);
             });
         }
     } else {
-        // 詳細ページなどの場合
+        // ローディング画面がないページ（詳細ページなど）の場合
         document.body.classList.remove('is-loading');
         startSlideshow();
     }
