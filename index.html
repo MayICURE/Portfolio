@@ -45,7 +45,7 @@
             padding: 0 20px;
         }
 
-        /* ▼▼▼ 追加：背景の流体マーブル（超軽量版） ▼▼▼ */
+       /* ▼▼▼ 背景の流体マーブル（流体感・見やすさUP版） ▼▼▼ */
         #bg-fluid {
             position: fixed;
             top: 0;
@@ -53,59 +53,71 @@
             width: 100vw;
             height: 100vh;
             z-index: -10;
+            background-color: #f0f2f5; /* ほんの少しグレーがかった白のベース */
             overflow: hidden;
-            background-color: #ffffff; /* ベースの白 */
-            pointer-events: none; /* クリックの邪魔をしない */
+            
+            /* 巨大なぼかしをかけて要素同士を完全に溶け合わせる（流体感のキモ） */
+            filter: blur(70px); 
+            
+            /* GPUを強制的に使って軽くするおまじない */
+            transform: translate3d(0, 0, 0); 
+            pointer-events: none;
         }
 
         .fluid-blob {
             position: absolute;
-            /* 有機的な形（アメーバ状）にして回転させることで流体を表現 */
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            border-radius: 50%;
+            /* 乗算にすることで、重なった部分の色が濃くなりマーブル感が出る */
+            mix-blend-mode: multiply; 
             opacity: 0.8;
-            will-change: transform; /* GPUを有効化して軽量化 */
+            will-change: transform;
         }
 
-        /* 非常に淡いモノクロ・グレーのふんわりグラデーション */
+        /* 舞色のイメージカラー（青）に少し寄せた、見やすいシルバーグレーのインク達 */
         .blob-1 {
-            width: 100vmax; height: 100vmax;
-            background: radial-gradient(circle at center, #f0f0f0 0%, rgba(240,240,240,0) 60%);
-            top: -30vmax; left: -20vmax;
-            animation: flow1 25s infinite linear;
+            width: 60vw; height: 60vw;
+            background-color: #c9d6e8; 
+            top: -10vh; left: -10vw;
+            animation: move1 18s infinite alternate ease-in-out;
         }
 
         .blob-2 {
-            width: 120vmax; height: 120vmax;
-            background: radial-gradient(circle at center, #e8e8e8 0%, rgba(232,232,232,0) 60%);
-            bottom: -40vmax; right: -30vmax;
-            animation: flow2 30s infinite linear reverse;
+            width: 70vw; height: 70vw;
+            background-color: #dbe4f0;
+            bottom: -20vh; right: -10vw;
+            animation: move2 22s infinite alternate ease-in-out;
         }
 
         .blob-3 {
-            width: 90vmax; height: 90vmax;
-            background: radial-gradient(circle at center, #f5f5f5 0%, rgba(245,245,245,0) 60%);
-            top: 20vh; left: 30vw;
-            animation: flow3 22s infinite linear;
+            width: 50vw; height: 50vw;
+            background-color: #b5c7dd;
+            top: 40vh; left: 30vw;
+            animation: move3 25s infinite alternate-reverse ease-in-out;
         }
 
-        /* ゆっくりと回転＋移動をさせて混ざり合う流体を作る */
-        @keyframes flow1 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(5vw, 5vh) scale(1.05); }
-            66% { transform: rotate(240deg) translate(-5vw, 10vh) scale(0.95); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        .blob-4 {
+            width: 80vw; height: 80vw;
+            background-color: #e2e8f0;
+            top: 10vh; right: 20vw;
+            animation: move4 20s infinite alternate ease-in-out;
         }
-        @keyframes flow2 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(-10vw, -5vh) scale(1.05); }
-            66% { transform: rotate(240deg) translate(5vw, -10vh) scale(0.95); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+
+        /* 画面を大きく往復しながら伸縮させることで「流れ」を作る */
+        @keyframes move1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30vw, 20vh) scale(1.3); }
         }
-        @keyframes flow3 {
-            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
-            33% { transform: rotate(120deg) translate(10vw, -10vh) scale(0.95); }
-            66% { transform: rotate(240deg) translate(-10vw, 5vh) scale(1.05); }
-            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        @keyframes move2 {
+            0% { transform: translate(0, 0) scale(1.2); }
+            100% { transform: translate(-40vw, -20vh) scale(0.8); }
+        }
+        @keyframes move3 {
+            0% { transform: translate(0, 0) scale(0.8); }
+            100% { transform: translate(-30vw, -30vh) scale(1.4); }
+        }
+        @keyframes move4 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20vw, 40vh) scale(1.1); }
         }
         /* ▲▲▲ 追加ここまで ▲▲▲ */
 
