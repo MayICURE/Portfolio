@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>極・流体インク（連続波打ち＆時間差）テスト</title>
+    <title>軽量・輪郭うねうねインク テスト</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #000; overflow: hidden;
@@ -16,37 +16,43 @@
             z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
 
-        /* ▼▼▼ 流体エフェクトのキモ ▼▼▼ */
+        /* SVGを使わず、CSSの軽い「ぼかし」だけでエッジを少しだけ馴染ませる */
         #loader-ripples {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             overflow: hidden; z-index: 1;
-            /* 常に強力な歪みと滲みをかけ続ける */
-            filter: url(#fluid-ink) blur(12px);
+            filter: blur(8px); /* 輪郭を少しだけ柔らかくする */
+            transition: filter 2.5s ease;
         }
 
-        /* インクの粒たちの共通設定 */
+        /* ぐるぐる混ぜる時に一気に色を溶け合わせる */
+        #loader-ripples.stir {
+            filter: blur(30px);
+        }
+
+        /* インクの共通設定 */
         .ripple {
             position: absolute;
             transform: scale(0) rotate(0deg); opacity: 0;
             transform-origin: center center;
-            mix-blend-mode: screen; /* 重なると色が明るく混ざる */
-            will-change: transform, opacity, border-radius;
+            mix-blend-mode: screen; /* 色が重なると光を放つように綺麗に混ざる */
+            will-change: transform, opacity, border-radius; /* GPUで処理して超軽量化 */
         }
 
+        /* 中身をしっかりと色で埋める（ベタ塗りに近い形） */
         /* ① 最初：真ん中に落ちるメインの青 */
         .ripple-1 { 
-            width: 120vmax; height: 120vmax; top: 50%; left: 50%; margin-top: -60vmax; margin-left: -60vmax;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 136, 255, 1) 0%, rgba(0, 136, 255, 0.4) 40%, transparent 70%); 
+            width: 100vmax; height: 100vmax; top: 50%; left: 50%; margin-top: -50vmax; margin-left: -50vmax;
+            background-color: rgba(0, 136, 255, 0.9); 
         }
         /* ② 次：右下から来る紫 */
         .ripple-2 { 
-            width: 140vmax; height: 140vmax; top: 75%; left: 75%; margin-top: -70vmax; margin-left: -70vmax;
-            background: radial-gradient(circle at 50% 50%, rgba(140, 0, 255, 1) 0%, rgba(140, 0, 255, 0.4) 40%, transparent 70%); 
+            width: 120vmax; height: 120vmax; top: 75%; left: 75%; margin-top: -60vmax; margin-left: -60vmax;
+            background-color: rgba(140, 0, 255, 0.85); 
         }
         /* ③ 最後：左上から来る水色 */
         .ripple-3 { 
-            width: 150vmax; height: 150vmax; top: 25%; left: 25%; margin-top: -75vmax; margin-left: -75vmax;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 1) 0%, rgba(0, 255, 200, 0.4) 40%, transparent 70%); 
+            width: 130vmax; height: 130vmax; top: 25%; left: 25%; margin-top: -65vmax; margin-left: -65vmax;
+            background-color: rgba(0, 255, 200, 0.85); 
         }
         
         /* すべてを飲み込む純白 */
@@ -55,35 +61,35 @@
             background: #ffffff; mix-blend-mode: normal; border-radius: 50%;
         }
 
-        /* ▼ アニメーションの設定（イージングを linear に近づけて停滞感をなくす） ▼ */
-        .ripple.active:not(.ripple-white) { animation: inkSpread 5.5s ease-in forwards; }
+        /* アニメーションの発火設定（動きが止まらないよう linear に近いイージング） */
+        .ripple.active:not(.ripple-white) { animation: inkSpread 5.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         
-        /* ここでタイミングを完全にずらしています */
+        /* 完璧な時間差（ぽつ、ぽつ、ぽつ） */
         .ripple-1.active { animation-delay: 0s; }
         .ripple-2.active { animation-delay: 0.6s; }
         .ripple-3.active { animation-delay: 1.2s; }
         .ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 3.5s; }
 
-        /* ▼ 絶え間なく動き、形を変え、加速していくアニメーション ▼ */
+        /* ▼ 輪郭がうねうねと動き続けるアニメーション ▼ */
         @keyframes inkSpread { 
             0% { 
                 transform: scale(0) rotate(0deg); opacity: 0; 
-                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
-            } 
-            5% { opacity: 0.9; }
-            /* 待機せず、常に回転と拡大を続けながら形（border-radius）を歪ませる */
-            40% { 
-                transform: scale(0.8) rotate(120deg); opacity: 0.9; 
-                border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; 
-            }
-            70% { 
-                transform: scale(1.6) rotate(360deg); opacity: 0.9; 
                 border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
+            } 
+            5% { opacity: 0.95; }
+            /* 常に回転・拡大を続けながら、輪郭の形（border-radius）をランダムに変化させる */
+            30% { 
+                transform: scale(0.6) rotate(120deg); opacity: 0.95; 
+                border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%; 
+            }
+            60% { 
+                transform: scale(1.3) rotate(360deg); opacity: 0.95; 
+                border-radius: 30% 70% 40% 60% / 60% 40% 70% 30%; 
             }
             /* 最後は筆でかき混ぜるように一気に爆発的回転 */
             100% { 
-                transform: scale(3.5) rotate(800deg); opacity: 1; 
-                border-radius: 50%; 
+                transform: scale(4) rotate(720deg); opacity: 1; 
+                border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; /* 最終的に丸く落ち着く */
             } 
         }
 
@@ -124,20 +130,6 @@
 </head>
 <body>
 
-    <!-- ▼▼▼ 進化した水・流体シミュレーター ▼▼▼ -->
-    <svg style="width:0; height:0; position:absolute;">
-        <defs>
-            <filter id="fluid-ink" x="-50%" y="-50%" width="200%" height="200%">
-                <!-- baseFrequencyをアニメーションさせることで、水自体が常にうねり続ける -->
-                <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
-                    <animate attributeName="baseFrequency" values="0.015;0.02;0.015" dur="4s" repeatCount="indefinite" />
-                </feTurbulence>
-                <!-- scale="250" で、インクの輪郭を限界まで引きちぎり波打たせる -->
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="250" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-        </defs>
-    </svg>
-
     <!-- ローディング画面 -->
     <div id="loader">
         <div id="loader-ripples">
@@ -157,6 +149,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const loaderWrapper = document.getElementById('loader-text-wrapper');
+            const ripplesContainer = document.getElementById('loader-ripples');
             const ripples = document.querySelectorAll('.ripple');
             let hasStarted = false;
 
@@ -164,15 +157,18 @@
                 if (hasStarted) return;
                 hasStarted = true;
 
-                // 1. インクを落とす（CSSで設定した0s, 0.6s, 1.2sの順番で自動発火）
+                // 1. 真ん中 → 右下 → 左上の順で自動的に発火
                 ripples.forEach(r => r.classList.add('active'));
                 
-                // 2. 約2.5秒後：テキストがインクに巻き込まれて溶け消える
+                // 2. 約2.5秒後：ブラーを強くして色を完全に混ざり合わせる
+                setTimeout(() => { 
+                    ripplesContainer.classList.add('stir'); 
+                }, 2500);
+                
+                // 3. 同時にテキストが溶け消える
                 setTimeout(() => { 
                     loaderWrapper.classList.add('fade-out'); 
                 }, 2500);
-
-                // （本来ならここで6秒後にサイト本編へフェードイン）
             });
         });
     </script>
