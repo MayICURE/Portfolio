@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="is-loading">
+<!-- ▼▼▼ 超軽量の流体融合(Gooey)フィルター ▼▼▼ -->
+    <svg style="width:0; height:0; position:absolute; pointer-events:none;">
+        <defs>
+            <filter id="goo" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="
+                    1 0 0 0 0  
+                    0 1 0 0 0  
+                    0 0 1 0 0  
+                    0 0 0 25 -10" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
 
     <!-- 奥のレイヤー：ぼかしインク -->
     <div id="bg-ink">
@@ -23,21 +37,40 @@
         <div class="outline-blob outline-3"></div>
     </div>
 
- <!-- インタラクティブ・ローディング画面 -->
+    <!-- インタラクティブ・ローディング画面 -->
     <div id="loader">
         <div id="loader-ripples">
-            <!-- 垂らされる絵の具（インク）たち -->
-            <div class="ripple ripple-1"></div>
-            <div class="ripple ripple-2"></div>
-            <div class="ripple ripple-3"></div>
-            <div class="ripple ripple-white"></div>
+            <!-- ① 青インク（真ん中） -->
+            <div class="ink-layer ink-blue ripple">
+                <div class="main-drop bg-blue"></div>
+                <div class="sub-drop d1 bg-blue"></div>
+                <div class="sub-drop d2 bg-blue"></div>
+                <div class="sub-drop d3 bg-blue"></div>
+            </div>
+            <!-- ② 紫インク（右下） -->
+            <div class="ink-layer ink-purple ripple">
+                <div class="main-drop bg-purple"></div>
+                <div class="sub-drop d1 bg-purple"></div>
+                <div class="sub-drop d2 bg-purple"></div>
+            </div>
+            <!-- ③ 水色インク（左上） -->
+            <div class="ink-layer ink-cyan ripple">
+                <div class="main-drop bg-cyan"></div>
+                <div class="sub-drop d1 bg-cyan"></div>
+                <div class="sub-drop d2 bg-cyan"></div>
+            </div>
+            <!-- ④ 白インク -->
+            <div class="ink-layer ink-white ripple">
+                <div class="main-drop bg-white"></div>
+            </div>
         </div>
-        <!-- ▼ ここを書き換え（クリックするラッパーを追加） ▼ -->
+        
         <div id="loader-text-wrapper">
             <div id="loader-text">∑ay][</div>
             <div id="loader-subtext">TAP TO START</div>
         </div>
     </div>
+
     <header class="site-header">
         <div class="header-inner">
             <a href="#" class="header-logo">∑ay][</a>
