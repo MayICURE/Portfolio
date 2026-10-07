@@ -23,17 +23,21 @@
         <div class="outline-blob outline-3"></div>
     </div>
 
-    <!-- インタラクティブ・ローディング画面 -->
+ <!-- インタラクティブ・ローディング画面 -->
     <div id="loader">
         <div id="loader-ripples">
+            <!-- 垂らされる絵の具（インク）たち -->
             <div class="ripple ripple-1"></div>
             <div class="ripple ripple-2"></div>
             <div class="ripple ripple-3"></div>
             <div class="ripple ripple-white"></div>
         </div>
-        <div id="loader-text">∑ay][</div>
+        <!-- ▼ ここを書き換え（クリックするラッパーを追加） ▼ -->
+        <div id="loader-text-wrapper">
+            <div id="loader-text">∑ay][</div>
+            <div id="loader-subtext">TAP TO START</div>
+        </div>
     </div>
-
     <header class="site-header">
         <div class="header-inner">
             <a href="#" class="header-logo">∑ay][</a>
