@@ -45,6 +45,70 @@
             padding: 0 20px;
         }
 
+        /* ▼▼▼ 追加：背景の流体マーブル（超軽量版） ▼▼▼ */
+        #bg-fluid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+            overflow: hidden;
+            background-color: #ffffff; /* ベースの白 */
+            pointer-events: none; /* クリックの邪魔をしない */
+        }
+
+        .fluid-blob {
+            position: absolute;
+            /* 有機的な形（アメーバ状）にして回転させることで流体を表現 */
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            opacity: 0.8;
+            will-change: transform; /* GPUを有効化して軽量化 */
+        }
+
+        /* 非常に淡いモノクロ・グレーのふんわりグラデーション */
+        .blob-1 {
+            width: 100vmax; height: 100vmax;
+            background: radial-gradient(circle at center, #f0f0f0 0%, rgba(240,240,240,0) 60%);
+            top: -30vmax; left: -20vmax;
+            animation: flow1 25s infinite linear;
+        }
+
+        .blob-2 {
+            width: 120vmax; height: 120vmax;
+            background: radial-gradient(circle at center, #e8e8e8 0%, rgba(232,232,232,0) 60%);
+            bottom: -40vmax; right: -30vmax;
+            animation: flow2 30s infinite linear reverse;
+        }
+
+        .blob-3 {
+            width: 90vmax; height: 90vmax;
+            background: radial-gradient(circle at center, #f5f5f5 0%, rgba(245,245,245,0) 60%);
+            top: 20vh; left: 30vw;
+            animation: flow3 22s infinite linear;
+        }
+
+        /* ゆっくりと回転＋移動をさせて混ざり合う流体を作る */
+        @keyframes flow1 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(5vw, 5vh) scale(1.05); }
+            66% { transform: rotate(240deg) translate(-5vw, 10vh) scale(0.95); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+        @keyframes flow2 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(-10vw, -5vh) scale(1.05); }
+            66% { transform: rotate(240deg) translate(5vw, -10vh) scale(0.95); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+        @keyframes flow3 {
+            0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+            33% { transform: rotate(120deg) translate(10vw, -10vh) scale(0.95); }
+            66% { transform: rotate(240deg) translate(-10vw, 5vh) scale(1.05); }
+            100% { transform: rotate(360deg) translate(0, 0) scale(1); }
+        }
+        /* ▲▲▲ 追加ここまで ▲▲▲ */
+
         /* --- ローディング画面 (波紋マーブル演出・軽量版) --- */
         #loader {
             position: fixed;
