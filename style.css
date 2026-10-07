@@ -68,31 +68,92 @@ a { text-decoration: none; color: inherit; }
 /* --- ローディング画面 --- */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 9999;
-    display: flex; justify-content: center; align-items: center; transition: opacity 1s ease;
+    display: flex; justify-content: center; align-items: center; transition: opacity 1.5s ease;
 }
 #loader.hidden { opacity: 0; pointer-events: none; }
-#loader-ripples { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; display: flex; justify-content: center; align-items: center; }
-.ripple { position: absolute; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: scale(0) rotate(0deg); opacity: 0; transform-origin: center center; will-change: transform, opacity; }
-.ripple-1 { width: 150vmax; height: 150vmax; background: linear-gradient(45deg, rgba(161, 196, 253, 0.9), rgba(194, 233, 251, 0.9)); }
-.ripple-2 { width: 160vmax; height: 160vmax; background: linear-gradient(45deg, rgba(224, 195, 252, 0.9), rgba(142, 197, 252, 0.9)); }
-.ripple-3 { width: 170vmax; height: 170vmax; background: linear-gradient(45deg, rgba(251, 194, 235, 0.9), rgba(166, 193, 238, 0.9)); }
-.ripple-white { width: 200vmax; height: 200vmax; background: #ffffff; border-radius: 50%; }
 
-.ripple.active:not(.ripple-white) { animation: rippleGrow 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+/* インクが水に溶けるようなにじみ感を作るコンテナ */
+#loader-ripples { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; 
+    filter: blur(15px); 
+    transition: filter 3s ease; /* 混ぜる時にブラーを強めるための準備 */
+}
+#loader-ripples.stir {
+    filter: blur(35px); /* ぐるぐる混ぜる時に一気に溶け合わせる */
+}
+
+/* インクの粒（アメーバ状にして回転させることで「混ぜる」動きになる） */
+.ripple { 
+    position: absolute; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
+    transform: scale(0) rotate(0deg); opacity: 0; transform-origin: center center; 
+    will-change: transform, opacity; mix-blend-mode: screen; 
+}
+
+/* ① 中心から広がる薄い青のインク */
+.ripple-1 { 
+    width: 120vmax; height: 120vmax; top: 50%; left: 50%; margin-top: -60vmax; margin-left: -60vmax;
+    background: radial-gradient(circle, rgba(0, 136, 255, 0.9) 0%, rgba(0, 136, 255, 0) 70%); 
+}
+/* ② 右下から広がる紫のインク */
+.ripple-2 { 
+    width: 140vmax; height: 140vmax; top: 80%; left: 80%; margin-top: -70vmax; margin-left: -70vmax;
+    background: radial-gradient(circle, rgba(160, 50, 255, 0.8) 0%, rgba(160, 50, 255, 0) 70%); 
+}
+/* ③ 左上から広がる水色のインク */
+.ripple-3 { 
+    width: 150vmax; height: 150vmax; top: 20%; left: 20%; margin-top: -75vmax; margin-left: -75vmax;
+    background: radial-gradient(circle, rgba(0, 255, 200, 0.7) 0%, rgba(0, 255, 200, 0) 70%); 
+}
+/* ④ 全てを飲み込む純白 */
+.ripple-white { 
+    width: 250vmax; height: 250vmax; top: 50%; left: 50%; margin-top: -125vmax; margin-left: -125vmax;
+    background: #ffffff; border-radius: 50%; mix-blend-mode: normal; 
+}
+
+/* アニメーションの発火タイミング */
+.ripple.active:not(.ripple-white) { animation: inkSpread 5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
 .ripple-1.active { animation-delay: 0s; }
-.ripple-2.active { animation-delay: 0.5s; }
-.ripple-3.active { animation-delay: 1.0s; }
-.ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 2.2s; }
+.ripple-2.active { animation-delay: 0.6s; } /* 少し遅れて紫 */
+.ripple-3.active { animation-delay: 1.2s; } /* さらに遅れて水色 */
+.ripple-white.active { animation: rippleWhiteGrow 3s cubic-bezier(0.4, 0, 0.2, 1) forwards; animation-delay: 3.5s; }
 
-@keyframes rippleGrow { 0% { transform: scale(0) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(1.5) rotate(180deg); opacity: 1; } }
-@keyframes rippleWhiteGrow { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1.5); opacity: 1; } }
+/* 垂らしたインクが広がり、最後にぐるぐる混ざる動き */
+@keyframes inkSpread { 
+    0% { transform: scale(0) rotate(0deg); opacity: 0; } 
+    10% { opacity: 0.9; }
+    50% { transform: scale(0.6) rotate(90deg); opacity: 0.9; } /* じんわり広がる */
+    100% { transform: scale(2) rotate(540deg); opacity: 1; } /* 拡大しながら大きく回転（筆で混ぜる） */
+}
+@keyframes rippleWhiteGrow { 
+    0% { transform: scale(0); opacity: 0; } 
+    50% { opacity: 1; } 
+    100% { transform: scale(1.5); opacity: 1; } 
+}
+
+/* --- テキスト（点滅とフェードアウト） --- */
+#loader-text-wrapper {
+    position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; user-select: none; transition: opacity 1.5s ease, transform 0.5s ease, filter 1.5s ease;
+}
+#loader-text-wrapper:hover { transform: scale(1.05); }
+#loader-text-wrapper.fade-out { 
+    opacity: 0; transform: scale(0.8) translateY(-20px); filter: blur(10px); /* 混ぜられるインクに溶けるように消える */
+}
 
 #loader-text {
-    position: relative; z-index: 3; color: #fff; font-size: 2.5rem; font-weight: 300; letter-spacing: 0.2em;
-    cursor: pointer; transition: opacity 1s ease, transform 0.3s ease, text-shadow 0.3s ease; user-select: none;
+    color: #fff; font-size: 2.5rem; font-weight: 300; letter-spacing: 0.2em;
+    animation: textPulse 3s infinite alternate ease-in-out;
 }
-#loader-text:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
-#loader-text.fade-out { opacity: 0; transform: scale(0.9); }
+#loader-subtext {
+    color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; letter-spacing: 0.3em; font-weight: bold; margin-top: 15px;
+    animation: textPulse 3s infinite alternate ease-in-out 0.5s; /* サブテキストは少し遅れて呼吸させる */
+}
+
+/* ホタルのようなふんわりした点滅（青い光彩） */
+@keyframes textPulse {
+    0% { opacity: 0.5; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+    100% { opacity: 1; text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 40px rgba(0, 136, 255, 0.6); }
+}
 
 /* --- ヘッダー --- */
 .site-header {
