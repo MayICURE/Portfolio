@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>VRChat アプローチB：尖った花弁の蕾ワールド（スマホ対応版）</title>
+  <title>VRChat アプローチB：完全版 尖った花弁の蕾ワールドシミュレーター</title>
   <style>
     body {
       margin: 0; padding: 0; overflow: hidden;
@@ -11,37 +11,37 @@
       touch-action: none;
     }
     #canvas-container { width: 100vw; height: 100vh; display: block; }
-    
-    /* スマホで見やすい下部コントロールパネル */
     #ui-panel {
       position: absolute; bottom: 0; left: 0; width: 100%;
-      background: rgba(22, 27, 34, 0.94); border-top: 1px solid #30363d;
+      background: rgba(22, 27, 34, 0.95); border-top: 1px solid #30363d;
       border-top-left-radius: 16px; border-top-right-radius: 16px;
-      padding: 16px 20px 28px 20px; box-sizing: border-box;
+      padding: 14px 20px 24px 20px; box-sizing: border-box;
       box-shadow: 0 -8px 24px rgba(0,0,0,0.6); z-index: 10;
     }
     h2 { margin: 0 0 6px 0; font-size: 14px; color: #58a6ff; }
     .status-badge {
       padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;
-      margin-bottom: 10px; background: #1f2937; border-left: 4px solid #3fb950;
+      margin-bottom: 8px; background: #1f2937; border-left: 4px solid #3fb950;
     }
-    .control-row { margin-bottom: 10px; font-size: 12px; }
-    .control-row label { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    input[type="range"] { width: 100%; height: 32px; cursor: pointer; accent-color: #58a6ff; }
+    .control-row { margin-bottom: 8px; font-size: 12px; }
+    .control-row label { display: flex; justify-content: space-between; margin-bottom: 3px; }
+    input[type="range"] { width: 100%; height: 28px; cursor: pointer; accent-color: #58a6ff; }
     
-    .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+    .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 4px; }
     .btn-grid button {
-      padding: 10px 4px; border: 1px solid #30363d; border-radius: 8px;
-      background: #21262d; color: #e6edf3; font-size: 12px; font-weight: bold;
+      padding: 8px 2px; border: 1px solid #30363d; border-radius: 6px;
+      background: #21262d; color: #e6edf3; font-size: 11px; font-weight: bold;
       touch-action: manipulation;
     }
     .btn-grid button:active { background: #1f6feb; border-color: #58a6ff; }
+    .action-row { display: flex; gap: 6px; margin-top: 6px; }
     .action-btn {
-      width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #30363d;
-      border-radius: 8px; background: #8957e5; color: white; font-size: 12px; font-weight: bold;
+      flex: 1; padding: 8px; border: 1px solid #30363d;
+      border-radius: 6px; background: #8957e5; color: white; font-size: 11px; font-weight: bold;
     }
     .action-btn:active { background: #a371f7; }
-    .hint { font-size: 10px; color: #8b949e; text-align: center; margin-top: 8px; }
+    .action-btn.secondary { background: #21262d; color: #58a6ff; border-color: #388bfd; }
+    .hint { font-size: 10px; color: #8b949e; text-align: center; margin-top: 6px; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -50,11 +50,11 @@
 <div id="canvas-container"></div>
 
 <div id="ui-panel">
-  <h2>アプローチB：尖った花弁（スマホ対応シミュレーター）</h2>
-  <div id="state-badge" class="status-badge">状態①：完全な平面（隙間も歩行可能）</div>
+  <h2>アプローチB：完全版（極点通過・隙間歩行・上下頂点一致）</h2>
+  <div id="state-badge" class="status-badge">状態①：平面（花弁の上も隙間も自由に歩行可能）</div>
 
   <div class="control-row">
-    <label><span>蕾の開閉度 (t)</span><span id="val-close">0% (平面)</span></label>
+    <label><span>蕾の開閉度 (t)</span><span id="val-close">0% (平面ステージ)</span></label>
     <input type="range" id="slider-close" min="0" max="1" step="0.005" value="0">
   </div>
 
@@ -62,27 +62,29 @@
     <label><span>プレイヤー移動操作（ボタンをタップ長押し）</span></label>
     <div class="btn-grid">
       <div></div>
-      <button id="btn-up">▲ 進む</button>
+      <button id="btn-up">▲ 先端へ</button>
       <div></div>
       <button id="btn-left">◀ 左</button>
-      <button id="btn-down">▼ 戻る</button>
+      <button id="btn-down">▼ 根元へ</button>
       <button id="btn-right">右 ▶</button>
     </div>
   </div>
 
-  <button class="action-btn" id="btn-test-hop">★ 隙間に配置して「ぴょん！」と飛び乗りテスト</button>
-  <div class="hint">画面を指でドラッグするとカメラアングルを回転できます。</div>
+  <div class="action-row">
+    <button class="action-btn secondary" id="btn-test-gap">★ 隙間に配置する</button>
+    <button class="action-btn" id="btn-test-pole">★ 北極点（先端）を直進突破</button>
+  </div>
+  <div class="hint">画面を指でドラッグするとカメラ視点を回転できます。</div>
 </div>
 
 <script>
-// --- シーン構築 ---
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0d1117);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
-camera.position.set(0, 24, 34);
-camera.lookAt(0, 4, 0);
+camera.position.set(0, 22, 34);
+camera.lookAt(0, 5, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -97,95 +99,65 @@ scene.add(dirLight);
 // --- パラメータ ---
 const PETAL_COUNT = 8;
 const SPHERE_RADIUS = 9.0;
-const MAX_ARC_S = Math.PI * SPHERE_RADIUS;
-const EDGE_MARGIN = 0.25;
+const MAX_S = Math.PI * SPHERE_RADIUS;
 
 let closeAmount = 0.0;
-let playerXZ = new THREE.Vector2(7.0, 0.0);
-let currentPetalIndex = 0;
+let petalIndex = 0;
+let arcS = 7.0;
+let eta = 0.0;
+let yaw = 0.0;
 
+// Hopping (隙間からの飛び乗り)
 let isHopping = false;
 let hopTimer = 0.0;
-const HOP_DURATION = 0.4;
+const HOP_DURATION = 0.38;
 const HOP_HEIGHT = 2.0;
-let hopStartXZ = new THREE.Vector2();
-let hopEndXZ = new THREE.Vector2();
-let hopHeightOffset = 0.0;
+let hopStartEta = 0.0;
+let hopTargetEta = 0.0;
+let hopY = 0.0;
 
-// --- 幾何学計算関数 ---
-function getPetalHalfWidth(s) {
-  const theta = Math.max(0.001, Math.min(Math.PI - 0.001, s / SPHERE_RADIUS));
-  return (Math.PI / PETAL_COUNT) * SPHERE_RADIUS * Math.sin(theta);
+// --- Sinc関数 & 幾何学計算 ---
+function sinc(x) {
+  if (Math.abs(x) < 0.0001) return 1.0 - (x * x) / 6.0;
+  return Math.sin(x) / x;
 }
 
-function getPetalCenterAngle(petalIdx) {
-  return petalIdx * ((Math.PI * 2) / PETAL_COUNT);
-}
+function evaluatePetalSurface(pIdx, s, e, t, hy) {
+  const maxS = Math.PI * SPHERE_RADIUS;
+  const clampedS = Math.max(0, Math.min(maxS, s));
+  const theta1 = clampedS / SPHERE_RADIUS;
 
-function getNearestPetalIndex(xz) {
-  if (xz.lengthSq() < 0.0001) return 0;
-  let angle = Math.atan2(xz.y, xz.x);
-  if (angle < 0) angle += Math.PI * 2;
-  const sector = (Math.PI * 2) / PETAL_COUNT;
-  return Math.round(angle / sector) % PETAL_COUNT;
-}
+  const centerPhi = pIdx * ((Math.PI * 2) / PETAL_COUNT);
+  const halfSectorAngle = Math.PI / PETAL_COUNT;
 
-function isInsidePetalBounds(xz, petalIdx, margin) {
-  if (xz.length() < 1.0) return true;
-  const angle = getPetalCenterAngle(petalIdx);
-  const axis = new THREE.Vector2(Math.cos(angle), Math.sin(angle));
-  const perp = new THREE.Vector2(-axis.y, axis.x);
-  const s = xz.dot(axis);
-  if (s <= 0 || s >= MAX_ARC_S) return false;
-  const u = Math.abs(xz.dot(perp));
-  return u <= Math.max(getPetalHalfWidth(s) - margin, 0.05);
-}
+  const sincTheta1 = sinc(theta1);
+  const sincThetaT = sinc(t * theta1);
+  const angleScale = (Math.abs(sincThetaT) > 0.00001) ? (sincTheta1 / sincThetaT) : 0;
+  const phi = centerPhi + e * halfSectorAngle * angleScale;
 
-function evaluatePointedPetalPoint(s, eta, petalIdx, t) {
-  const centerPhi = getPetalCenterAngle(petalIdx);
-  const axisX = Math.cos(centerPhi), axisZ = Math.sin(centerPhi);
-  const perpX = -axisZ, perpZ = axisX;
-  const halfW = getPetalHalfWidth(s);
-  const u = eta * halfW;
+  let basePos, inwardNormal;
+  const theta_t = t * theta1;
 
   if (t <= 0.0001) {
-    return { pos: new THREE.Vector3(axisX * s + perpX * u, 0, axisZ * s + perpZ * u), normal: new THREE.Vector3(0, 1, 0) };
+    basePos = new THREE.Vector3(clampedS * Math.cos(phi), 0, clampedS * Math.sin(phi));
+    inwardNormal = new THREE.Vector3(0, 1, 0);
+  } else {
+    const Rt = SPHERE_RADIUS / t;
+    const ringR = Rt * Math.sin(theta_t);
+    const vertY = Rt * (1.0 - Math.cos(theta_t));
+    basePos = new THREE.Vector3(ringR * Math.cos(phi), vertY, ringR * Math.sin(phi));
+    const sphereCenter = new THREE.Vector3(0, Rt, 0);
+    inwardNormal = sphereCenter.clone().sub(basePos).normalize();
   }
 
-  const curvature = t / SPHERE_RADIUS;
-  const Rt = 1.0 / curvature;
-  const theta_t = s * curvature;
-  const r_t = Rt * Math.sin(theta_t);
-  const y_t = Rt * (1.0 - Math.cos(theta_t));
+  const radialTangent = new THREE.Vector3(
+    Math.cos(theta_t) * Math.cos(phi),
+    Math.sin(theta_t),
+    Math.cos(theta_t) * Math.sin(phi)
+  ).normalize();
 
-  const deltaPhi1 = eta * (Math.PI / PETAL_COUNT);
-  const flatX = axisX * r_t + perpX * u;
-  const flatZ = axisZ * r_t + perpZ * u;
-  const rotDirX = axisX * Math.cos(deltaPhi1) + perpX * Math.sin(deltaPhi1);
-  const rotDirZ = axisZ * Math.cos(deltaPhi1) + perpZ * Math.sin(deltaPhi1);
-  const sphereX = r_t * rotDirX, sphereZ = r_t * rotDirZ;
-
-  const finalX = (1.0 - t) * flatX + t * sphereX;
-  const finalZ = (1.0 - t) * flatZ + t * sphereZ;
-  const pos = new THREE.Vector3(finalX, y_t, finalZ);
-  const sphereCenter = new THREE.Vector3(0, Rt, 0);
-  const normal = sphereCenter.clone().sub(pos).normalize();
-
-  return { pos, normal };
-}
-
-function evaluatePlayerSurface(xz, petalIdx, t, hopY) {
-  const centerPhi = getPetalCenterAngle(petalIdx);
-  const axis = new THREE.Vector2(Math.cos(centerPhi), Math.sin(centerPhi));
-  const perp = new THREE.Vector2(-axis.y, axis.x);
-  const s = Math.max(0.01, Math.min(MAX_ARC_S * 0.97, xz.dot(axis)));
-  const u = xz.dot(perp);
-  const halfW = Math.max(getPetalHalfWidth(s), 0.01);
-  const eta = u / halfW;
-
-  const surf = evaluatePointedPetalPoint(s, eta, petalIdx, t);
-  const finalPos = surf.pos.clone().addScaledVector(surf.normal, hopY);
-  const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), surf.normal);
+  const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), inwardNormal);
+  const finalPos = basePos.clone().addScaledVector(inwardNormal, hy);
   return { pos: finalPos, quat: q };
 }
 
@@ -193,7 +165,7 @@ function evaluatePlayerSurface(xz, petalIdx, t, hopY) {
 const visualWorldRoot = new THREE.Group();
 scene.add(visualWorldRoot);
 
-const SEG_S = 28, SEG_U = 10;
+const SEG_S = 32, SEG_U = 10;
 const petalMeshes = [];
 
 for (let k = 0; k < PETAL_COUNT; k++) {
@@ -218,11 +190,16 @@ for (let k = 0; k < PETAL_COUNT; k++) {
   petalMeshes.push(mesh);
 }
 
-const flatGapGrid = new THREE.PolarGridHelper(MAX_ARC_S, 14, 6, 32, 0x1f6feb, 0x16335b);
-flatGapGrid.position.y = -0.03;
-visualWorldRoot.add(flatGapGrid);
+// 南北の頂点（上下の極）の重なりを確認できる目印の光るポールマーカー
+const poleGeo = new THREE.SphereGeometry(0.35, 16, 16);
+const poleMat = new THREE.MeshBasicMaterial({ color: 0xff5555 });
+const northPoleMarker = new THREE.Mesh(poleGeo, poleMat);
+visualWorldRoot.add(northPoleMarker);
 
-// プレイヤー（青アバター）
+const southPoleMarker = new THREE.Mesh(poleGeo, new THREE.MeshBasicMaterial({ color: 0x55ff55 }));
+visualWorldRoot.add(southPoleMarker);
+
+// プレイヤーアバター
 const playerGroup = new THREE.Group();
 const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.2, 12), new THREE.MeshStandardMaterial({ color: 0x2f81f7 }));
 body.position.y = 0.6;
@@ -232,41 +209,121 @@ head.position.y = 1.45;
 playerGroup.add(head);
 scene.add(playerGroup);
 
-// --- 更新処理 ---
+// --- メッシュ更新 ---
 function updatePetals(t) {
   for (let k = 0; k < PETAL_COUNT; k++) {
     const posAttr = petalMeshes[k].geometry.attributes.position;
     let idx = 0;
     for (let i = 0; i <= SEG_S; i++) {
-      const s = (i / SEG_S) * MAX_ARC_S;
+      const tau = i / SEG_S;
+      const s = tau * MAX_S;
       for (let j = 0; j <= SEG_U; j++) {
-        const eta = (j / SEG_U) * 2.0 - 1.0;
-        const { pos } = evaluatePointedPetalPoint(s, eta, k, t);
+        const e = (j / SEG_U) * 2.0 - 1.0;
+        const { pos } = evaluatePetalSurface(k, s, e, t, 0);
         posAttr.setXYZ(idx++, pos.x, pos.y, pos.z);
       }
     }
     posAttr.needsUpdate = true;
     petalMeshes[k].geometry.computeVertexNormals();
-    petalMeshes[k].material.emissive.setHex(k === currentPetalIndex ? 0x112a46 : 0x000000);
+    petalMeshes[k].material.emissive.setHex(k === petalIndex ? 0x112a46 : 0x000000);
   }
-  flatGapGrid.visible = (t <= 0.01);
+
+  // 上下の極の位置を更新
+  if (t <= 0.0001) {
+    southPoleMarker.position.set(0, 0, 0);
+    northPoleMarker.position.set(0, MAX_S, 0);
+  } else {
+    const Rt = SPHERE_RADIUS / t;
+    southPoleMarker.position.set(0, 0, 0);
+    northPoleMarker.position.set(0, Rt * (1.0 - Math.cos(t * Math.PI)), 0); // t=1のとき厳密に (0, 2R, 0)
+  }
 }
 
-function triggerHop() {
-  currentPetalIndex = getNearestPetalIndex(playerXZ);
-  const angle = getPetalCenterAngle(currentPetalIndex);
-  const axis = new THREE.Vector2(Math.cos(angle), Math.sin(angle));
-  const perp = new THREE.Vector2(-axis.y, axis.x);
-  const s = Math.max(1.5, Math.min(MAX_ARC_S * 0.9, playerXZ.length()));
-  const safeHalfW = Math.max(getPetalHalfWidth(s) - EDGE_MARGIN, 0.1);
-  const clampedU = Math.max(-safeHalfW, Math.min(safeHalfW, playerXZ.dot(perp)));
+// --- 移動ロジック ---
+function stepMovement(ds, du) {
+  const isFlat = (closeAmount <= 0.001);
+  const isSphere = (closeAmount >= 0.999);
+  const badge = document.getElementById('state-badge');
 
-  hopStartXZ.copy(playerXZ);
-  hopEndXZ.copy(axis.clone().multiplyScalar(s).add(perp.clone().multiplyScalar(clampedU)));
-  hopTimer = 0.0;
-  isHopping = true;
+  if (isHopping) {
+    hopTimer += 0.016 / HOP_DURATION;
+    if (hopTimer >= 1.0) { hopTimer = 1.0; isHopping = false; hopY = 0; }
+    else { hopY = Math.sin(hopTimer * Math.PI) * HOP_HEIGHT; }
+    eta = THREE.MathUtils.lerp(hopStartEta, hopTargetEta, hopTimer);
+    badge.textContent = "状態②：隙間から最寄りの花弁へ「ぴょん！」と飛び乗り中";
+    badge.style.borderLeftColor = "#a371f7";
+    return;
+  }
+
+  arcS += ds;
+  
+  // 極点（北極・南極）のシームレス通過（向かい側の花弁 k + N/2 へ通り抜け）
+  if (arcS > MAX_S) {
+    const overflow = arcS - MAX_S;
+    arcS = MAX_S - overflow;
+    petalIndex = (petalIndex + PETAL_COUNT / 2) % PETAL_COUNT;
+    eta = -eta;
+  } else if (arcS < 0) {
+    const underflow = -arcS;
+    arcS = underflow;
+    petalIndex = (petalIndex + PETAL_COUNT / 2) % PETAL_COUNT;
+    eta = -eta;
+  }
+
+  const theta1 = Math.max(0.05, Math.min(Math.PI - 0.05, arcS / SPHERE_RADIUS));
+  const halfW = (Math.PI * SPHERE_RADIUS / PETAL_COUNT) * Math.Sin ? Math.Sin(theta1) : Math.sin(theta1);
+  const dEta = du / Math.max(halfW, 0.2);
+
+  if (isFlat) {
+    eta += dEta;
+    const sectorLimit = theta1 / Math.sin(theta1);
+    if (eta > sectorLimit) {
+      petalIndex = (petalIndex + 1) % PETAL_COUNT;
+      eta -= 2.0 * sectorLimit;
+    } else if (eta < -sectorLimit) {
+      petalIndex = (petalIndex - 1 + PETAL_COUNT) % PETAL_COUNT;
+      eta += 2.0 * sectorLimit;
+    }
+    hopY = 0;
+    badge.textContent = Math.abs(eta) > 1.0
+      ? "状態①：平面（花弁の「隙間」の上を歩行中！）"
+      : `状態①：平面（花弁 #${petalIndex + 1} の上を歩行中）`;
+    badge.style.borderLeftColor = "#3fb950";
+  } else if (isSphere) {
+    eta += dEta;
+    if (eta > 1.0) {
+      petalIndex = (petalIndex + 1) % PETAL_COUNT;
+      eta -= 2.0;
+    } else if (eta < -1.0) {
+      petalIndex = (petalIndex - 1 + PETAL_COUNT) % PETAL_COUNT;
+      eta += 2.0;
+    }
+    hopY = 0;
+    badge.textContent = `状態④：球体（花弁 #${petalIndex + 1} 切れ目を越えて360°周回可能）`;
+    badge.style.borderLeftColor = "#58a6ff";
+  } else {
+    if (Math.abs(eta) > 1.0) {
+      hopStartEta = eta;
+      hopTargetEta = Math.sign(eta) * 0.85;
+      hopTimer = 0;
+      isHopping = true;
+    } else {
+      if (arcS < 1.2) {
+        const phi = petalIndex * (Math.PI * 2 / PETAL_COUNT) + eta * (Math.PI / PETAL_COUNT);
+        const x = arcS * Math.cos(phi) + du;
+        const z = arcS * Math.sin(phi) + ds;
+        arcS = Math.max(0.2, Math.min(MAX_S, Math.hypot(x, z)));
+        const newPhi = Math.atan2(z, x);
+        petalIndex = Math.round((newPhi < 0 ? newPhi + Math.PI * 2 : newPhi) / (Math.PI * 2 / PETAL_COUNT)) % PETAL_COUNT;
+      }
+      eta = Math.max(-0.92, Math.min(0.92, eta + dEta));
+      badge.textContent = `状態③：遷移中（花弁 #${petalIndex + 1} の縁で落下防止ロック）`;
+      badge.style.borderLeftColor = "#d29922";
+    }
+  }
 }
 
+// --- 入力＆UIイベント ---
 const inputState = { up: false, down: false, left: false, right: false };
 function bindTouch(id, key) {
   const el = document.getElementById(id);
@@ -281,17 +338,22 @@ bindTouch('btn-down', 'down');
 bindTouch('btn-left', 'left');
 bindTouch('btn-right', 'right');
 
-document.getElementById('btn-test-hop').addEventListener('click', () => {
+// テストボタン1：隙間に配置する
+document.getElementById('btn-test-gap').addEventListener('click', () => {
   closeAmount = 0.0;
-  document.getElementById('slider-close').value = 0;
-  const gapAngle = (Math.PI * 2 / PETAL_COUNT) * 0.5;
-  playerXZ.set(Math.cos(gapAngle) * 12.0, Math.sin(gapAngle) * 12.0);
-  currentPetalIndex = 0;
-  setTimeout(() => {
-    closeAmount = 0.35;
-    document.getElementById('slider-close').value = 0.35;
-    document.getElementById('val-close').textContent = "35% (飛び乗り発動!)";
-  }, 120);
+  document.getElementById('slider-close').value = 0.0;
+  document.getElementById('val-close').textContent = "0% (平面ステージ)";
+  petalIndex = 0;
+  arcS = 14.0;
+  eta = 1.35; // 花弁の外（隙間）に配置
+  hopY = 0; isHopping = false;
+});
+
+// テストボタン2：北極点（先端）を直進突破
+document.getElementById('btn-test-pole').addEventListener('click', () => {
+  arcS = MAX_S - 1.5; // 先端の直前へワープ
+  eta = 0.0;
+  hopY = 0; isHopping = false;
 });
 
 const sliderClose = document.getElementById('slider-close');
@@ -299,10 +361,10 @@ const valClose = document.getElementById('val-close');
 sliderClose.addEventListener('input', e => {
   closeAmount = parseFloat(e.target.value);
   const pct = Math.round(closeAmount * 100);
-  valClose.textContent = pct === 0 ? "0% (平面)" : pct === 100 ? "100% (球体)" : `${pct}% (遷移中)`;
+  valClose.textContent = pct === 0 ? "0% (平面ステージ)" : pct === 100 ? "100% (完全密閉球体)" : `${pct}% (遷移中)`;
 });
 
-// スマホタッチでのカメラ回転用
+// スマホタッチでのカメラ回転
 let isDragging = false, prevMousePos = { x: 0, y: 0 };
 window.addEventListener('touchstart', e => {
   if (e.target.closest('#ui-panel')) return;
@@ -316,81 +378,34 @@ window.addEventListener('touchmove', e => {
 });
 window.addEventListener('touchend', () => isDragging = false);
 
+// --- メインループ ---
 const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
 
-  const speed = 7.0;
-  const radial = playerXZ.length() > 0.1 ? playerXZ.clone().normalize() : new THREE.Vector2(1, 0);
-  const tangent = new THREE.Vector2(-radial.y, radial.x);
-  const moveStep = new THREE.Vector2();
+  const speed = 7.5;
+  let ds = 0, du = 0;
+  if (inputState.up)    ds += speed * dt;
+  if (inputState.down)  ds -= speed * dt;
+  if (inputState.right) du += speed * dt;
+  if (inputState.left)  du -= speed * dt;
 
-  if (inputState.up)    moveStep.addScaledVector(radial, speed * dt);
-  if (inputState.down)  moveStep.addScaledVector(radial, -speed * dt);
-  if (inputState.right) moveStep.addScaledVector(tangent, speed * dt);
-  if (inputState.left)  moveStep.addScaledVector(tangent, -speed * dt);
-
-  const badge = document.getElementById('state-badge');
-  const isFlat = (closeAmount <= 0.005);
-  const isSphere = (closeAmount >= 0.995);
-
-  if (isHopping) {
-    hopTimer += dt / HOP_DURATION;
-    if (hopTimer >= 1.0) { hopTimer = 1.0; isHopping = false; hopHeightOffset = 0.0; }
-    else { hopHeightOffset = Math.sin(hopTimer * Math.PI) * HOP_HEIGHT; }
-    playerXZ.lerpVectors(hopStartXZ, hopEndXZ, Math.smoothStep ? Math.smoothStep(0,1,hopTimer) : hopTimer);
-    badge.textContent = "状態②：隙間から最寄りの花弁へ「ぴょん！」と飛び乗り中";
-    badge.style.borderLeftColor = "#a371f7";
-  } else if (isFlat) {
-    playerXZ.add(moveStep);
-    if (playerXZ.length() > MAX_ARC_S * 0.92) playerXZ.normalize().multiplyScalar(MAX_ARC_S * 0.92);
-    currentPetalIndex = getNearestPetalIndex(playerXZ);
-    const inGap = !isInsidePetalBounds(playerXZ, currentPetalIndex, 0.0);
-    badge.textContent = inGap ? "状態①：平面（花弁の「隙間」の上を歩行中！）" : "状態①：完全な平面（隙間も自由に行き来可能）";
-    badge.style.borderLeftColor = "#3fb950";
-  } else if (isSphere) {
-    const d = Math.max(playerXZ.length(), 0.3);
-    const rDir = playerXZ.clone().divideScalar(d);
-    const tDir = new THREE.Vector2(-rDir.y, rDir.x);
-    const ringR = SPHERE_RADIUS * Math.sin(Math.max(0.05, Math.min(Math.PI - 0.05, d / SPHERE_RADIUS)));
-    const newD = Math.max(0.5, Math.min(MAX_ARC_S * 0.92, d + moveStep.dot(rDir)));
-    const newPhi = Math.atan2(playerXZ.y, playerXZ.x) + moveStep.dot(tDir) / ringR;
-    playerXZ.set(Math.cos(newPhi) * newD, Math.sin(newPhi) * newD);
-    currentPetalIndex = getNearestPetalIndex(playerXZ);
-    badge.textContent = `状態④：完全な球体（花弁#${currentPetalIndex + 1} 切れ目を越えて360°周回可能）`;
-    badge.style.borderLeftColor = "#58a6ff";
-  } else {
-    if (!isInsidePetalBounds(playerXZ, currentPetalIndex, -0.05)) {
-      triggerHop();
-    } else {
-      const nextXZ = playerXZ.clone().add(moveStep);
-      const angle = getPetalCenterAngle(currentPetalIndex);
-      const axis = new THREE.Vector2(Math.cos(angle), Math.sin(angle));
-      const perp = new THREE.Vector2(-axis.y, axis.x);
-      const s = Math.max(0.6, Math.min(MAX_ARC_S * 0.92, nextXZ.dot(axis)));
-      const maxU = Math.max(getPetalHalfWidth(s) - EDGE_MARGIN, 0.05);
-      const u = Math.max(-maxU, Math.min(maxU, nextXZ.dot(perp)));
-      playerXZ.copy(axis.multiplyScalar(s).add(perp.multiplyScalar(u)));
-      badge.textContent = `状態③：遷移中（花弁#${currentPetalIndex + 1} の縁で落下防止ロック作動中）`;
-      badge.style.borderLeftColor = "#d29922";
-    }
-  }
-
+  stepMovement(ds, du);
   updatePetals(closeAmount);
-  const surf = evaluatePlayerSurface(playerXZ, currentPetalIndex, closeAmount, hopHeightOffset);
 
-  // VRChat方式の自分基準視点（自分が常に原点に直立、世界が逆回転）
+  const surf = evaluatePetalSurface(petalIndex, arcS, eta, closeAmount, hopY);
+
+  // VRChat自分基準視点（自分が原点に直立、世界が逆回転）
   playerGroup.position.set(0, 0, 0);
   playerGroup.quaternion.identity();
 
   const invQuat = surf.quat.clone().invert();
-  // ユーザーのドラッグによる回転（visualWorldRoot.rotation.y）を保持しつつ逆回転を適用
   const currentWorldY = visualWorldRoot.rotation.y;
   visualWorldRoot.quaternion.copy(invQuat);
   visualWorldRoot.rotation.y += currentWorldY;
-  
+
   const rotatedOffset = surf.pos.clone().applyQuaternion(invQuat);
   visualWorldRoot.position.copy(rotatedOffset.negate());
 
