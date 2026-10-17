@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>VRChat アプローチB：完全版 尖った花弁の蕾ワールドシミュレーター</title>
+  <title>VRChat アプローチB：完全安定版 尖った花弁の蕾ワールドシミュレーター</title>
   <style>
     body {
       margin: 0; padding: 0; overflow: hidden;
@@ -50,7 +50,7 @@
 <div id="canvas-container"></div>
 
 <div id="ui-panel">
-  <h2>アプローチB：完全版（極点通過・隙間歩行・上下頂点一致）</h2>
+  <h2>アプローチB：完全安定版（無限回転バグ修正済み）</h2>
   <div id="state-badge" class="status-badge">状態①：平面（花弁の上も隙間も自由に歩行可能）</div>
 
   <div class="control-row">
@@ -190,16 +190,13 @@ for (let k = 0; k < PETAL_COUNT; k++) {
   petalMeshes.push(mesh);
 }
 
-// 南北の頂点（上下の極）の重なりを確認できる目印の光るポールマーカー
 const poleGeo = new THREE.SphereGeometry(0.35, 16, 16);
-const poleMat = new THREE.MeshBasicMaterial({ color: 0xff5555 });
-const northPoleMarker = new THREE.Mesh(poleGeo, poleMat);
+const northPoleMarker = new THREE.Mesh(poleGeo, new THREE.MeshBasicMaterial({ color: 0xff5555 }));
 visualWorldRoot.add(northPoleMarker);
 
 const southPoleMarker = new THREE.Mesh(poleGeo, new THREE.MeshBasicMaterial({ color: 0x55ff55 }));
 visualWorldRoot.add(southPoleMarker);
 
-// プレイヤーアバター
 const playerGroup = new THREE.Group();
 const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.2, 12), new THREE.MeshStandardMaterial({ color: 0x2f81f7 }));
 body.position.y = 0.6;
@@ -228,14 +225,13 @@ function updatePetals(t) {
     petalMeshes[k].material.emissive.setHex(k === petalIndex ? 0x112a46 : 0x000000);
   }
 
-  // 上下の極の位置を更新
   if (t <= 0.0001) {
     southPoleMarker.position.set(0, 0, 0);
     northPoleMarker.position.set(0, MAX_S, 0);
   } else {
     const Rt = SPHERE_RADIUS / t;
     southPoleMarker.position.set(0, 0, 0);
-    northPoleMarker.position.set(0, Rt * (1.0 - Math.cos(t * Math.PI)), 0); // t=1のとき厳密に (0, 2R, 0)
+    northPoleMarker.position.set(0, Rt * (1.0 - Math.cos(t * Math.PI)), 0);
   }
 }
 
@@ -257,7 +253,6 @@ function stepMovement(ds, du) {
 
   arcS += ds;
   
-  // 極点（北極・南極）のシームレス通過（向かい側の花弁 k + N/2 へ通り抜け）
   if (arcS > MAX_S) {
     const overflow = arcS - MAX_S;
     arcS = MAX_S - overflow;
@@ -271,7 +266,7 @@ function stepMovement(ds, du) {
   }
 
   const theta1 = Math.max(0.05, Math.min(Math.PI - 0.05, arcS / SPHERE_RADIUS));
-  const halfW = (Math.PI * SPHERE_RADIUS / PETAL_COUNT) * Math.Sin ? Math.Sin(theta1) : Math.sin(theta1);
+  const halfW = (Math.PI * SPHERE_RADIUS / PETAL_COUNT) * Math.sin(theta1);
   const dEta = du / Math.max(halfW, 0.2);
 
   if (isFlat) {
@@ -338,20 +333,18 @@ bindTouch('btn-down', 'down');
 bindTouch('btn-left', 'left');
 bindTouch('btn-right', 'right');
 
-// テストボタン1：隙間に配置する
 document.getElementById('btn-test-gap').addEventListener('click', () => {
   closeAmount = 0.0;
   document.getElementById('slider-close').value = 0.0;
   document.getElementById('val-close').textContent = "0% (平面ステージ)";
   petalIndex = 0;
   arcS = 14.0;
-  eta = 1.35; // 花弁の外（隙間）に配置
+  eta = 1.35;
   hopY = 0; isHopping = false;
 });
 
-// テストボタン2：北極点（先端）を直進突破
 document.getElementById('btn-test-pole').addEventListener('click', () => {
-  arcS = MAX_S - 1.5; // 先端の直前へワープ
+  arcS = MAX_S - 1.5;
   eta = 0.0;
   hopY = 0; isHopping = false;
 });
@@ -364,7 +357,7 @@ sliderClose.addEventListener('input', e => {
   valClose.textContent = pct === 0 ? "0% (平面ステージ)" : pct === 100 ? "100% (完全密閉球体)" : `${pct}% (遷移中)`;
 });
 
-// スマホタッチでのカメラ回転
+// スマホタッチでのカメラ回転（rotation.yの自己増殖バグを完全修正）
 let isDragging = false, prevMousePos = { x: 0, y: 0 };
 window.addEventListener('touchstart', e => {
   if (e.target.closest('#ui-panel')) return;
@@ -373,7 +366,7 @@ window.addEventListener('touchstart', e => {
 window.addEventListener('touchmove', e => {
   if (!isDragging) return;
   const dx = e.touches[0].clientX - prevMousePos.x;
-  visualWorldRoot.rotation.y += dx * 0.008;
+  visualWorldRoot.rotation.y += dx * 0.008; // カメラ操作による手動回転
   prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 });
 window.addEventListener('touchend', () => isDragging = false);
@@ -402,9 +395,12 @@ function animate() {
   playerGroup.quaternion.identity();
 
   const invQuat = surf.quat.clone().invert();
-  const currentWorldY = visualWorldRoot.rotation.y;
+  
+  // 【最重要修正】ユーザーの手動カメラ回転（visualWorldRoot.rotation.y）を壊さず、
+  // クォータニオンの代入によるオイラー角の自己増殖バグを完全に回避する処理
+  const userRotationY = visualWorldRoot.rotation.y;
   visualWorldRoot.quaternion.copy(invQuat);
-  visualWorldRoot.rotation.y += currentWorldY;
+  visualWorldRoot.rotation.y += userRotationY; // 手動回転分だけを正しく加算
 
   const rotatedOffset = surf.pos.clone().applyQuaternion(invQuat);
   visualWorldRoot.position.copy(rotatedOffset.negate());
