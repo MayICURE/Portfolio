@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Maze Text Atlas Generator (Web Solid)</title>
+  <!-- Google Fontsから美しい明朝体(Shippori Mincho / Noto Serif JP)を読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600;900&family=Shippori+Mincho:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: sans-serif; background: #1a1d24; color: #eee; margin: 20px; display: flex; gap: 24px; }
+    .panel { width: 420px; background: #252932; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
+    .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    textarea { width: 100%; height: 120px; background: #12151a; color: #fff; border: 1px solid #444; padding: 8px; font-size: 14px; box-sizing: border-box; }
+    label { font-size: 13px; color: #aab; display: flex; justify-content: space-between; align-items: center; }
+    select, input[type="number"], input[type="text"] { background: #12151a; color: #fff; border: 1px solid #444; padding: 6px; border-radius: 4px; width: 180px; }
+    button { background: #3b82f6; color: #fff; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 8px; }
+    button:hover { background: #2563eb; }
+    canvas { max-width: 640px; max-height: 640px; border: 2px solid #444; background-image: linear-gradient(45deg, #2a2a2a 25%, transparent 25%), linear-gradient(-45deg, #2a2a2a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #2a2a2a 75%), linear-gradient(-45deg, transparent 75%, #2a2a2a 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0; }
+    .info { font-size: 12px; color: #8899ac; background: #181b22; padding: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h2 style="margin:0 0 8px 0; font-size:18px;">迷路演出用 文字アトラス生成ツール</h2>
+    <label>流したい文章（改行は無視されます）:</label>
+    <textarea id="inputText">ねえ、この前のパーティー覚えてる？だってとっても楽しかった！私は貴方があんなにはしゃぐなんて思わなかったからびっくりしちゃったそうだ！せっかくまた会えたんです！今日は永遠に遊びましょう。もう誰も貴方を叱りには来ませんよ。その手に握った小さいどんぐりなんて捨てて、こっちにおいで？私についてきて！昨日あんなに散らかっていたのに、この部屋も随分綺麗になりましたね。</textarea>
+
+    <label>フォント選択:
+      <select id="fontFamily">
+        <option value="'Shippori Mincho', serif">しっぽり明朝 (Google Font)</option>
+        <option value="'Noto Serif JP', serif">源ノ明朝 / Noto Serif JP</option>
+        <option value="'Yu Mincho', '游明朝', serif">游明朝 (PC内蔵)</option>
+        <option value="'MS Mincho', 'ＭＳ 明朝', serif">ＭＳ 明朝 (PC内蔵)</option>
+        <option value="sans-serif">ゴシック体 (標準)</option>
+      </select>
+    </label>
+
+    <label>グリッド分割数 (N × N):
+      <input type="number" id="gridCount" value="16" min="4" max="32">
+    </label>
+
+    <label>画像解像度 (px):
+      <select id="texSize">
+        <option value="1024">1024 x 1024</option>
+        <option value="2048" selected>2048 x 2048</option>
+        <option value="4096">4096 x 4096</option>
+      </select>
+    </label>
+
+    <label>文字サイズ比率 (%):
+      <input type="number" id="fontScale" value="78" min="20" max="120">
+    </label>
+
+    <label>背景モード:
+    <select id="bgMode">
+        <option value="black" selected>黒背景 ＋ 白文字 (確実・推奨)</option>
+        <option value="transparent">背景透過 ＋ 白文字</option>
+    </select>
+    </label>
+
+    <label>確認用グリッド線を表示 (保存時は消えます):
+    <input type="checkbox" id="showGuide" checked>
+    </label>
+
+    <div class="info" id="statsInfo">文字数計算中...</div>
+
+    <button id="downloadBtn">MazeTextAtlas.png をダウンロード</button>
+</div>
+
+<div class="preview-area">
+    <h3 style="margin-top:0;">リアルタイムプレビュー</h3>
+    <canvas id="atlasCanvas" width="2048" height="2048"></canvas>
+</div>
+
+<script src="atlas_renderer.js"></script>
+<script src="atlas_exporter.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+@charset "UTF-8";
+
+.editor-layout {
+    display: grid; grid-template-columns: 450px 1fr; height: 100vh; overflow: hidden;
+}
+
+/* 左側：操作パネル */
+.editor-sidebar {
+    background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(46, 168, 124, 0.2);
+    padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+    box-shadow: 5px 0 25px rgba(0,0,0,0.05); z-index: 2000;
+}
+.editor-panel-title {
+    font-size: 1.3rem; font-weight: bold; color: var(--accent-green);
+    margin: 0; padding-bottom: 10px; border-bottom: 2px solid var(--accent-green);
+}
+
+.meta-inputs { display: flex; flex-direction: column; gap: 12px; background: var(--bg-sub); padding: 15px; border-radius: 10px; }
+.meta-inputs label { font-size: 0.85rem; font-weight: bold; color: var(--text-sub); }
+.meta-inputs input, .meta-inputs select {
+    padding: 8px 12px; border: 1px solid #cce0d6; border-radius: 6px; font-size: 0.95rem;
+}
+
+/* ブロック追加ボタン群 */
+.add-block-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-tool {
+    flex: 1 1 calc(50% - 8px); padding: 10px; border: 1px solid var(--accent-green);
+    background: #fff; color: var(--accent-green); font-weight: bold; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.btn-tool:hover { background: var(--accent-green); color: #fff; }
+
+/* 編集ブロックリスト */
+#block-list { display: flex; flex-direction: column; gap: 15px; }
+.block-item {
+    background: #fff; border: 1px solid #dcebe3; border-radius: 10px; padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.block-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; font-size: 0.85rem; font-weight: bold; color: var(--accent-green);
+}
+.block-controls button {
+    background: #eef5f1; border: none; padding: 4px 8px; border-radius: 4px;
+    cursor: pointer; font-size: 0.8rem; margin-left: 4px;
+}
+.block-controls button:hover { background: #d0e8dc; }
+.block-controls .btn-del { color: #e53e3e; background: #fff5f5; }
+
+.block-item textarea, .block-item input, .block-item select {
+    width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #d0e0d8;
+    border-radius: 6px; margin-bottom: 8px; font-family: inherit;
+}
+.block-item textarea { min-height: 90px; resize: vertical; }
+
+/* 書き出しボタン */
+.btn-export {
+    padding: 15px; background: var(--accent-green); color: #fff; border: none;
+    border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(46, 168, 124, 0.3); transition: transform 0.2s;
+}
+.btn-export:hover { transform: translateY(-2px); background: #248f68; }
+
+/* 右側：リアルタイムプレビュー領域 */
+.editor-preview-area { height: 100vh; overflow-y: auto; position: relative; }

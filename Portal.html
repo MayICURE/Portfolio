@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MayI VRChat Gimmick & Shader Archive</title>
+  <link rel="stylesheet" href="styleportal.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <h1>MayI VRC Gimmick Lab</h1>
+      <p>VRChat World UdonSharp &amp; Shader Direct Archive</p>
+      <div class="vcc-banner">
+        <button id="btn-add-vcc" class="vcc-btn">＋ VCC (Creator Companion) にリポジトリを追加</button>
+        <input type="text" id="vpm-url-input" readonly value="https://mayi.com/vpm.json">
+        <button id="btn-copy-vpm" class="sub-btn">URLコピー</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="filter-bar">
+      <button class="filter-btn active" data-category="all">すべて</button>
+      <button class="filter-btn" data-category="Udon">UdonSharp</button>
+      <button class="filter-btn" data-category="Shader">Shader</button>
+      <button class="filter-btn" data-category="Set">複合ギミック</button>
+    </section>
+
+    <section id="gimmick-list" class="gimmick-grid">
+      <!-- catalog-loader.js によってカードが生成されます -->
+    </section>
+  </main>
+
+  <!-- コードプレビュー用モーダル -->
+  <div id="code-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-filename">FileName.cs</h3>
+        <button id="btn-close-modal" class="close-btn">×</button>
+      </div>
+      <pre><code id="modal-code-body"></code></pre>
+    </div>
+  </div>
+
+  <!-- 機能ごとに分割したスクリプト群 -->
+  <script src="vcc-connector.js"></script>
+  <script src="code-viewer-downloader.js"></script>
+  <script src="catalog-loader.js"></script>
+</body>
+</html>

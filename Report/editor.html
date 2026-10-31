@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diary & Report Editor - 舞色 (∑ay][)</title>
+    <link rel="icon" href="mayico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="diary-style.css">
+    <link rel="stylesheet" href="editor-style.css">
+</head>
+<body>
+
+    <!-- 背景（プレビュー用） -->
+    <div id="bg-ink">
+        <div class="ink-blob ink-1"></div>
+        <div class="ink-blob ink-2"></div>
+        <div class="ink-blob ink-3"></div>
+        <div class="ink-blob ink-4"></div>
+    </div>
+    <div id="bg-outline">
+        <div class="outline-blob outline-1"></div>
+        <div class="outline-blob outline-2"></div>
+        <div class="outline-blob outline-3"></div>
+    </div>
+
+    <div class="editor-layout">
+        
+        <!-- 左側：編集コントロールパネル -->
+        <aside class="editor-sidebar">
+            <h2 class="editor-panel-title">Diary / Report エディタ</h2>
+
+            <div class="meta-inputs">
+                <label>保存するファイル名</label>
+                <input type="text" id="meta-filename" value="diary-20261101.html">
+                
+                <label>カテゴリー</label>
+                <select id="meta-cat" onchange="renderPreview()">
+                    <option value="Report">Report（イベント・制作レポート）</option>
+                    <option value="Diary">Diary（日常・雑記）</option>
+                    <option value="Tech">Tech（シェーダー・技術メモ）</option>
+                </select>
+
+                <label>記事タイトル</label>
+                <input type="text" id="meta-title" value="新しいイベントレポート" oninput="renderPreview()">
+
+                <label>日付</label>
+                <input type="text" id="meta-date" value="2026.11.01" oninput="renderPreview()">
+            </div>
+
+            <div>
+                <label style="font-size:0.85rem; font-weight:bold; color:var(--text-sub); display:block; margin-bottom:8px;">
+                    ＋ 任意の場所にブロックを追加：
+                </label>
+                <div class="add-block-bar">
+                    <button type="button" class="btn-tool" onclick="addBlock('heading')">＋ 見出し</button>
+                    <button type="button" class="btn-tool" onclick="addBlock('text')">＋ 文章</button>
+                    <button type="button" class="btn-tool" onclick="addBlock('image')">＋ 画像（1枚・回り込み）</button>
+                    <button type="button" class="btn-tool" onclick="addBlock('image2')">＋ 画像（2枚横並び）</button>
+                </div>
+            </div>
+
+            <!-- ここにブロック一覧が入ります -->
+            <div id="block-list"></div>
+
+            <button type="button" class="btn-export" onclick="exportProductionHTML()">
+                本番用HTMLファイルを書き出す
+            </button>
+        </aside>
+
+        <!-- 右側：リアルタイム本番プレビュー -->
+        <div class="editor-preview-area">
+            <main class="diary-container" style="padding-top: 40px;">
+                <article class="diary-glass-panel">
+                    <div class="diary-header">
+                        <span class="diary-category" id="prev-cat">Report</span>
+                        <h1 class="diary-title" id="prev-title"></h1>
+                        <div class="diary-date" id="prev-date"></div>
+                    </div>
+                    <div class="diary-body clearfix" id="prev-body"></div>
+                </article>
+            </main>
+        </div>
+
+    </div>
+
+    <!-- 分割したスクリプトの読み込み -->
+    <script src="editor-blocks.js"></script>
+    <script src="editor-export.js"></script>
+</body>
+</html>

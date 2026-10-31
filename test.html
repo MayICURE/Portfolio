@@ -2,313 +2,111 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>VRChat 視界ジャック＆256ポリ変身シミュレーター</title>
+<title>8K Native Watercolor Logo Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; background: #1a1a1e; color: #fff; font-family: sans-serif; overflow: hidden; }
-  #ui { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); padding: 12px 16px; border-radius: 8px; z-index: 10; }
-  button { padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 6px; border: none; background: #4f46e5; color: white; margin-right: 8px; }
-  button.active { background: #e11d48; }
-  .stat { font-size: 12px; color: #cbd5e1; margin-top: 8px; line-height: 1.5; }
-  #mirror-label { position: absolute; bottom: 168px; right: 20px; font-size: 12px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 4px; pointer-events: none; }
+  body { font-family: sans-serif; padding: 24px; background: #f4f6f8; color: #333; }
+  .box { max-width: 720px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  button { margin: 8px 8px 8px 0; padding: 10px 18px; font-size: 15px; cursor: pointer; }
+  canvas { max-width: 100%; height: auto; margin-top: 16px; background: repeating-conic-gradient(#ececec 0% 25%, #ffffff 0% 50%) 50% / 20px 20px; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
-<div id="ui">
-  <button id="toggleBtn" onclick="toggleVisionJack()">視界ジャック＆256ポリ変身：ON (発動中)</button>
-  <div class="stat" id="infoText"></div>
+<div class="box">
+  <h2>パターン2：8K（7680×4320）ネイティブ水彩＆筆記体ジェネレーター</h2>
+  <button id="rerollBtn">水彩の形を少し変える</button>
+  <button id="dlTransparentBtn">8K 透過PNGを保存</button>
+  <button id="dlWhiteBtn">8K 白背景PNGを保存</button>
+  <canvas id="canvas" width="7680" height="4320"></canvas>
 </div>
-<div id="mirror-label">🪞 フェイスミラー (Layer 18: 元のアバターが常時表示)</div>
-<canvas id="canvas"></canvas>
-
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let width, height;
-function resize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
 
-let isJackActive = true;
-let camYaw = 0.5, camPitch = 0.25, isDragging = false, lastX = 0, lastY = 0;
-canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  camYaw -= (e.clientX - lastX) * 0.008;
-  camPitch = Math.max(-0.5, Math.min(1.0, camPitch + (e.clientY - lastY) * 0.008));
-  lastX = e.clientX; lastY = e.clientY;
+function drawPetalCluster(cx, cy, baseRadius, colorRgb, petalCount) {
+  for (let i = 0; i < petalCount; i++) {
+    const angle = (Math.PI * 2 * i) / petalCount + (Math.random() - 0.5) * 0.5;
+    const dist = baseRadius * (0.3 + Math.random() * 0.55);
+    const px = cx + Math.cos(angle) * dist;
+    const py = cy + Math.sin(angle) * dist;
+    const r = baseRadius * (0.35 + Math.random() * 0.45);
+
+    const grad = ctx.createRadialGradient(px, py, r * 0.1, px, py, r);
+    grad.addColorStop(0, `rgba(${colorRgb}, 0.28)`);
+    grad.addColorStop(0.65, `rgba(${colorRgb}, 0.18)`);
+    grad.addColorStop(0.9, `rgba(${colorRgb}, 0.06)`);
+    grad.addColorStop(1, `rgba(${colorRgb}, 0)`);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function renderLogo(withWhiteBg = false) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (withWhiteBg) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // ペールグリーンとペールブルーのぼんやりした花塊（アジサイ・花束風シルエット）
+  const clusters = [
+    { x: 2550, y: 1850, r: 520, c: '180, 232, 155', n: 14 },
+    { x: 3200, y: 2350, r: 620, c: '165, 228, 195', n: 16 },
+    { x: 3850, y: 1950, r: 580, c: '160, 220, 242', n: 15 },
+    { x: 4650, y: 1820, r: 560, c: '155, 215, 240', n: 16 },
+    { x: 4300, y: 2450, r: 500, c: '185, 235, 160', n: 12 },
+    { x: 5150, y: 2280, r: 480, c: '175, 230, 165', n: 14 }
+  ];
+
+  clusters.forEach(cl => drawPetalCluster(cl.x, cl.y, cl.r, cl.c, cl.n));
+
+  // 控えめな水彩しぶき（ドット）
+  for (let i = 0; i < 45; i++) {
+    const sx = 2000 + Math.random() * 3700;
+    const sy = 1250 + Math.random() * 1800;
+    const sr = 8 + Math.random() * 28;
+    const isGreen = Math.random() > 0.5;
+    ctx.fillStyle = isGreen ? 'rgba(170, 225, 150, 0.35)' : 'rgba(155, 215, 238, 0.35)';
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 1行の細筆記体テキスト（8K解像度）
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '920px "Allura", cursive';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('BlumenKrone', canvas.width / 2, canvas.height / 2 + 40);
+}
+
+document.fonts.ready.then(() => renderLogo(false));
+
+document.getElementById('rerollBtn').addEventListener('click', () => renderLogo(false));
+
+document.getElementById('dlTransparentBtn').addEventListener('click', () => {
+  renderLogo(false);
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Bindungen_flechten_8K_native_transparent.png';
+    a.click();
+  }, 'image/png');
 });
 
-function toggleVisionJack() {
-  isJackActive = !isJackActive;
-  const btn = document.getElementById('toggleBtn');
-  btn.textContent = isJackActive ? "視界ジャック＆256ポリ変身：ON (発動中)" : "視界ジャック＆256ポリ変身：OFF (通常時)";
-  btn.className = isJackActive ? "active" : "";
-}
-
-// --- Unityスクリプトと完全同一の「ぴったり256ポリゴン＋ウェイト」人型モデル生成 ---
-function build256PolyAvatar() {
-  const verts = [], tris = [], weights = [];
-  const addV = (x,y,z, b0,w0, b1=0,w1=0) => { verts.push({x,y,z}); weights.push({b0,w0,b1,w1}); return verts.length-1; };
-  const addT = (a,b,c) => tris.push([a,b,c]);
-  const addLoft = (r0, r1, seg) => {
-    for(let s=0; s<seg; s++) {
-      let n = (s+1)%seg;
-      addT(r0+s, r0+n, r1+n); addT(r0+s, r1+n, r1+s);
-    }
-  };
-  const addQuadCap = (r, out) => {
-    if(out){ addT(r,r+1,r+2); addT(r,r+2,r+3); }
-    else   { addT(r,r+2,r+1); addT(r,r+3,r+2); }
-  };
-
-  // A. 体幹〜頭 (80 tris)
-  const tY = [0.86, 1.12, 1.38, 1.46, 1.62];
-  const tRx = [0.13, 0.11, 0.16, 0.06, 0.11];
-  const tRz = [0.09, 0.08, 0.10, 0.06, 0.11];
-  const tW = [[0,1,0,0], [1,0.7,0,0.3], [2,0.85,1,0.15], [3,0.6,4,0.4], [4,1,0,0]];
-  const botIdx = addV(0, 0.82, 0, 0, 1);
-  const rStarts = [];
-  for(let r=0; r<5; r++) {
-    rStarts.push(verts.length);
-    for(let s=0; s<8; s++) {
-      let a = s * Math.PI * 2 / 8;
-      addV(Math.cos(a)*tRx[r], tY[r], Math.sin(a)*tRz[r], ...tW[r]);
-    }
-  }
-  const topIdx = addV(0, 1.72, 0, 4, 1);
-  for(let s=0; s<8; s++) addT(botIdx, rStarts[0]+(s+1)%8, rStarts[0]+s);
-  for(let r=0; r<4; r++) addLoft(rStarts[r], rStarts[r+1], 8);
-  for(let s=0; s<8; s++) addT(rStarts[4]+s, rStarts[4]+(s+1)%8, topIdx);
-
-  // B. 両腕 (44 * 2 = 88 tris)
-  const buildArm = (dir, bU, bL, bH) => {
-    const xO = [0.18, 0.30, 0.43, 0.55, 0.68, 0.78];
-    const rad = [0.045, 0.04, 0.038, 0.035, 0.032, 0.025];
-    const bw = [[bU,1,0,0], [bU,0.8,bL,0.2], [bU,0.4,bL,0.6], [bL,0.9,bH,0.1], [bH,0.7,bL,0.3], [bH,1,0,0]];
-    const rings = [];
-    for(let r=0; r<6; r++) {
-      rings.push(verts.length);
-      let x = xO[r]*dir, rd = rad[r];
-      const offs = [[0,rd,0],[0,0,rd*dir],[0,-rd,0],[0,0,-rd*dir]];
-      for(let s=0; s<4; s++) addV(x+offs[s][0], 1.35+offs[s][1], offs[s][2], ...bw[r]);
-    }
-    addQuadCap(rings[0], false);
-    for(let r=0; r<5; r++) addLoft(rings[r], rings[r+1], 4);
-    addQuadCap(rings[5], true);
-  };
-  buildArm(-1, 5, 6, 7);
-  buildArm( 1, 8, 9, 10);
-
-  // C. 両脚 (44 * 2 = 88 tris)
-  const buildLeg = (side, bU, bL, bF) => {
-    const x = 0.10*side;
-    const yP = [0.88, 0.68, 0.48, 0.28, 0.08, 0.02];
-    const zO = [0, 0, 0, 0, 0, 0.08];
-    const rad = [0.065, 0.055, 0.048, 0.042, 0.038, 0.035];
-    const bw = [[bU,1,0,0], [bU,0.8,bL,0.2], [bU,0.4,bL,0.6], [bL,0.9,bF,0.1], [bF,0.7,bL,0.3], [bF,1,0,0]];
-    const rings = [];
-    for(let r=0; r<6; r++) {
-      rings.push(verts.length);
-      let rd = rad[r];
-      const offs = [[0,0,rd],[rd,0,0],[0,0,-rd],[-rd,0,0]];
-      for(let s=0; s<4; s++) addV(x+offs[s][0], yP[r]+offs[s][1], zO[r]+offs[s][2], ...bw[r]);
-    }
-    addQuadCap(rings[0], false);
-    for(let r=0; r<5; r++) addLoft(rings[r], rings[r+1], 4);
-    addQuadCap(rings[5], true);
-  };
-  buildLeg(-1, 11, 12, 13);
-  buildLeg( 1, 14, 15, 16);
-
-  return { verts, tris, weights };
-}
-
-const model256 = build256PolyAvatar();
-document.getElementById('infoText').innerHTML =
-  `生成メッシュ検証: <b>${model256.tris.length} Triangles (ポリゴン)</b> / ${model256.verts.length} Vertices<br>` +
-  `マウスドラッグで視点回転 | 手書き揺らぎ(8fps) + ボーンウェイト変形稼働中`;
-
-// 自室の家具（ベッド・机・窓枠）
-const roomBoxes = [
-  { min:[-2,0,-2], max:[2,2.4,2], color:'#334155', isRoom:true }, // 部屋外枠
-  { min:[-1.9,0.0,-1.8], max:[-0.7,0.45,-0.2], color:'#be123c' }, // ベッド
-  { min:[0.6,0.0,-1.8], max:[1.8,0.75,-1.0], color:'#b45309' },   // デスク
-  { min:[0.9,0.75,-1.6], max:[1.5,1.25,-1.4], color:'#38bdf8' },  // モニター
-  { min:[-0.6,1.0,-1.98], max:[0.4,2.0,-1.95], color:'#fef08a' }  // 窓
-];
-
-// 3D投影ヘルパー
-function project(p, camPos, yaw, pitch, vpW, vpH, vpX, vpY, jitterTime) {
-  let dx = p.x - camPos.x, dy = p.y - camPos.y, dz = p.z - camPos.z;
-  let cy = Math.cos(yaw), sy = Math.sin(yaw);
-  let x1 = dx * cy - dz * sy, z1 = dx * sy + dz * cy;
-  let cp = Math.cos(pitch), sp = Math.sin(pitch);
-  let y2 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp;
-  if (z2 < 0.1) return null;
-  let fov = vpH * 0.85;
-  let sx = vpX + vpW/2 + (x1 / z2) * fov;
-  let sy2 = vpY + vpH/2 - (y2 / z2) * fov;
-  if (jitterTime !== null) {
-    sx += Math.sin(p.x*19 + p.y*31 + jitterTime) * 1.8;
-    sy2 += Math.cos(p.z*23 + p.y*17 + jitterTime) * 1.8;
-  }
-  return { x: sx, y: sy2, z: z2 };
-}
-
-// ボーン変形計算（歩行＆手を振るアニメーション）
-function getSkinnedVertices(time) {
-  const bindP = [
-    [0,0.9,0],[0,1.05,0],[0,1.25,0],[0,1.42,0],[0,1.52,0],
-    [-0.18,1.35,0],[-0.43,1.35,0],[-0.68,1.35,0],
-    [0.18,1.35,0],[0.43,1.35,0],[0.68,1.35,0],
-    [-0.1,0.88,0],[-0.1,0.48,0],[-0.1,0.08,0],
-    [0.1,0.88,0],[0.1,0.48,0],[0.1,0.08,0]
-  ];
-  // 各ボーンの回転・移動を簡易計算
-  const transformBone = (v, bIdx) => {
-    let bx = bindP[bIdx][0], by = bindP[bIdx][1], bz = bindP[bIdx][2];
-    let lx = v.x - bx, ly = v.y - by, lz = v.z - bz;
-    let rx = 0, ry = 0, rz = 0;
-    if (bIdx === 5 || bIdx === 6 || bIdx === 7) rz = Math.sin(time * 3) * 0.5 + 0.3; // 左腕振り
-    if (bIdx === 8 || bIdx === 9 || bIdx === 10) rz = -0.5;
-    if (bIdx >= 11 && bIdx <= 13) rx = Math.sin(time * 3) * 0.35; // 左脚
-    if (bIdx >= 14 && bIdx <= 16) rx = -Math.sin(time * 3) * 0.35; // 右脚
-
-    // Z回転 + X回転
-    let cz = Math.cos(rz), sz = Math.sin(rz);
-    let x1 = lx * cz - ly * sz, y1 = lx * sz + ly * cz;
-    let cx = Math.cos(rx), sx = Math.sin(rx);
-    let y2 = y1 * cx - lz * sx, z2 = y1 * sx + lz * cx;
-
-    // 親ボーンの追従オフセット補正
-    let ox = bx, oy = by + Math.abs(Math.sin(time*3))*0.03, oz = bz;
-    if (bIdx === 6 || bIdx === 7) {
-      let a = Math.sin(time * 3) * 0.5 + 0.3;
-      let d = (bIdx === 6) ? -0.25 : -0.50;
-      ox = -0.18 + d * Math.cos(a); oy = 1.35 + d * Math.sin(a);
-    }
-    return { x: ox + x1, y: oy + y2, z: oz + z2 };
-  };
-
-  return model256.verts.map((v, i) => {
-    const w = model256.weights[i];
-    const p0 = transformBone(v, w.b0);
-    if (w.w1 <= 0) return p0;
-    const p1 = transformBone(v, w.b1);
-    return {
-      x: p0.x * w.w0 + p1.x * w.w1,
-      y: p0.y * w.w0 + p1.y * w.w1,
-      z: p0.z * w.w0 + p1.z * w.w1
-    };
-  });
-}
-
-function drawBoxEdges(box, camPos, yaw, pitch, vpW, vpH, vpX, vpY, jitter, isJack) {
-  const [x0,y0,z0] = box.min, [x1,y1,z1] = box.max;
-  const pts = [
-    {x:x0,y:y0,z:z0},{x:x1,y:y0,z:z0},{x:x1,y:y0,z:z1},{x:x0,y:y0,z:z1},
-    {x:x0,y:y1,z:z0},{x:x1,y:y1,z:z0},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1}
-  ].map(p => project(p, camPos, yaw, pitch, vpW, vpH, vpX, vpY, jitter));
-  if (pts.some(p => !p)) return;
-  const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-  ctx.strokeStyle = isJack ? '#1e293b' : box.color;
-  ctx.lineWidth = isJack ? 2.2 : 2.0;
-  ctx.beginPath();
-  edges.forEach(([a,b]) => { ctx.moveTo(pts[a].x, pts[a].y); ctx.lineTo(pts[b].x, pts[b].y); });
-  ctx.stroke();
-}
-
-// 元のアバター（カラフルな球体＆リボン風シルエット）描画
-function drawOriginalAvatar(time, camPos, yaw, pitch, vpW, vpH, vpX, vpY) {
-  const parts = [
-    { x:0, y:1.52, z:0, r:0.14, col:'#fda4af' }, // 頭（ピンク髪風）
-    { x:-0.16, y:1.58, z:0, r:0.07, col:'#f43f5e' }, // ツインテ左
-    { x:0.16, y:1.58, z:0, r:0.07, col:'#f43f5e' },  // ツインテ右
-    { x:0, y:1.18, z:0, r:0.16, col:'#60a5fa' }, // 服（水色）
-    { x:0, y:0.88, z:0, r:0.18, col:'#3b82f6' }  // スカート
-  ];
-  parts.forEach(pt => {
-    const proj = project(pt, camPos, yaw, pitch, vpW, vpH, vpX, vpY, null);
-    if (!proj) return;
-    const rad = (pt.r / proj.z) * (vpH * 0.85);
-    ctx.fillStyle = pt.col;
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(proj.x, proj.y, Math.max(2, rad), 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-  });
-}
-
-function render() {
-  const time = performance.now() * 0.001;
-  const snapTime = Math.floor(time * 8.0); // 8fpsの手書き揺らぎ
-  const camDist = 2.6;
-  const camPos = {
-    x: Math.sin(camYaw) * Math.cos(camPitch) * camDist,
-    y: 1.1 + Math.sin(camPitch) * camDist,
-    z: -Math.cos(camYaw) * Math.cos(camPitch) * camDist
-  };
-
-  // 1. メイン画面の背景（視界ジャック時は白基調の紙テクスチャ色、通常時は暗い部屋色）
-  ctx.fillStyle = isJackActive ? '#f6f4ee' : '#0f172a';
-  ctx.fillRect(0, 0, width, height);
-
-  // 2. 自室の描画
-  roomBoxes.forEach(b => drawBoxEdges(b, camPos, camYaw, camPitch, width, height, 0, 0, isJackActive ? snapTime : null, isJackActive));
-
-  // 3. プレイヤーの描画
-  if (!isJackActive) {
-    // 通常時：元のアバターが表示される
-    drawOriginalAvatar(time, camPos, camYaw, camPitch, width, height, 0, 0);
-  } else {
-    // 視界ジャック発動時：元のアバターは消え、256ポリゴンのウェイト付きモデルが手書き風で描画される
-    const skinnedV = getSkinnedVertices(time);
-    const projV = skinnedV.map(v => project(v, camPos, camYaw, camPitch, width, height, 0, 0, snapTime));
-
-    // Zソートして奥のポリゴンから描画
-    const sortedTris = model256.tris.map(t => {
-      const p0 = projV[t[0]], p1 = projV[t[1]], p2 = projV[t[2]];
-      if (!p0 || !p1 || !p2) return null;
-      return { p0, p1, p2, z: (p0.z + p1.z + p2.z) / 3 };
-    }).filter(Boolean).sort((a,b) => b.z - a.z);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#18181b';
-    ctx.lineWidth = 1.4;
-    sortedTris.forEach(t => {
-      ctx.beginPath();
-      ctx.moveTo(t.p0.x, t.p0.y);
-      ctx.lineTo(t.p1.x, t.p1.y);
-      ctx.lineTo(t.p2.x, t.p2.y);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    });
-  }
-
-  // 4. 右下の「フェイスミラー」描画（MirrorReflectionレイヤー：常に元のアバターが映る）
-  const mw = 220, mh = 150, mx = width - mw - 16, my = height - mh - 16;
-  ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(mx, my, mw, mh, 8);
-  ctx.clip();
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(mx, my, mw, mh);
-  drawOriginalAvatar(time, {x:0, y:1.25, z:-1.2}, 0, 0.05, mw, mh, mx, my);
-  ctx.strokeStyle = '#94a3b8';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(mx, my, mw, mh);
-  ctx.restore();
-
-  requestAnimationFrame(render);
-}
-render();
+document.getElementById('dlWhiteBtn').addEventListener('click', () => {
+  renderLogo(true);
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Bindungen_flechten_8K_native_white.png';
+    a.click();
+    renderLogo(false);
+  }, 'image/png');
+});
 </script>
 </body>
 </html>

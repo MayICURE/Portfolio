@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diary & Report - 舞色 (∑ay][)</title>
+    <link rel="icon" href="mayico.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="mayico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="diary-style.css">
+    <style>
+        .diary-list-grid { display: flex; flex-direction: column; gap: 20px; }
+        .diary-card {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(10px);
+            padding: 25px 35px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(20, 60, 40, 0.04); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .diary-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(46, 168, 124, 0.15); }
+        .diary-card-title { font-size: 1.2rem; font-weight: bold; margin: 8px 0 0 0; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-ink">
+        <div class="ink-blob ink-1"></div>
+        <div class="ink-blob ink-2"></div>
+        <div class="ink-blob ink-3"></div>
+        <div class="ink-blob ink-4"></div>
+    </div>
+    <div id="bg-outline">
+        <div class="outline-blob outline-1"></div>
+        <div class="outline-blob outline-2"></div>
+        <div class="outline-blob outline-3"></div>
+    </div>
+
+    <main class="diary-container">
+        <h1 style="text-align:center; font-size:2rem; margin-bottom:50px;">Diary & Report</h1>
+        
+        <div class="diary-list-grid">
+            <!-- 書き出したHTMLファイルをここに追加していきます -->
+            <a href="Blau_1101.html" class="diary-card">
+                <div>
+                    <span class="diary-category">Report</span>
+                    <h2 class="diary-card-title">新しいイベントレポート</h2>
+                </div>
+                <div class="diary-date">2026.11.01</div>
+            </a>
+        </div>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2026 舞色 - ∑ay][. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
